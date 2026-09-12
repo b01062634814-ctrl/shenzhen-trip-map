@@ -26,7 +26,11 @@
 - NEXT_PUBLIC_AMAP_KEY：高德 Web 端（JS API）Key，可出现在浏览器端。
 - AMAP_JS_CODE：高德安全密钥，只放在服务器环境变量中，不提交到 Git。
 
-app/%5FAMapService/[...path]/route.ts 提供同源安全代理，并在服务器侧附加 jscode。
+app/api/amap/[...path]/route.ts 提供同源安全代理，并在服务器侧附加 jscode。
+
+## 部署
+
+仓库可部署到 Vercel、Cloudflare Workers 等支持 Next.js 服务端路由与环境变量的平台。由于安全密钥代理需要服务端运行环境，不建议直接部署到纯静态的 GitHub Pages。
 
 ## 图片许可
 

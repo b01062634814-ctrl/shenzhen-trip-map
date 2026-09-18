@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071f2b" />
+    <meta name="description" content="广东旅行地图：浏览深圳、广州、顺德与汕头的景点、距离和美食。" />
+    <title>广东旅行地图</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="preconnect" href="https://tile.openstreetmap.org" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#/" aria-label="返回地图首页">
+          <span class="brand-mark" aria-hidden="true">深</span>
+          <span>
+            <strong>广东旅行地图</strong>
+            <small>两个人 · 十月出发</small>
+          </span>
+        </a>
+        <div class="top-actions">
+          <span class="live-pill">4 个目的地</span>
+          <button class="ghost-button" id="fitMapButton" type="button">查看全城</button>
+        </div>
+      </header>
+
+      <main id="app" aria-live="polite"></main>
+    </div>
+
+    <template id="mapViewTemplate">
+      <section class="map-page">
+        <aside class="explorer-panel">
+          <div class="panel-intro">
+            <p class="eyebrow">广东 · 十月旅行</p>
+            <h1>先看位置，<br />再决定今天去哪。</h1>
+            <p>点地图或卡片查看玩法。选中地点后，会自动算出它与其他景点的直线距离。</p>
+          </div>
+          <label class="city-picker">目的地 <select id="citySelect"><option>深圳</option><option>广州</option><option>顺德</option><option>汕头</option></select></label>
+          <p id="cityIntro" class="city-intro"></p>
+          <details class="food-guide" id="foodGuide"><summary>当地吃什么</summary><div id="foodList"></div></details>
+          <div class="filters" id="filters" aria-label="景点分类">
+            <button class="filter active" data-filter="全部">全部</button>
+            <button class="filter" data-filter="海边">海边</button>
+            <button class="filter" data-filter="城市">城市</button>
+            <button class="filter" data-filter="人文">人文</button>
+            <button class="filter" data-filter="公园">公园</button>
+            <button class="filter" data-filter="乐园">乐园</button>
+            <button class="filter" data-filter="动物园">动物园</button>
+            <button class="filter" data-filter="购物">购物</button>
+          </div>
+
+          <div class="place-list" id="placeList"></div>
+        </aside>
+
+        <section class="map-stage" aria-label="景点互动地图">
+          <div id="map"></div>
+          <div class="map-note"><span>地图距离为直线估算</span><b>·</b><span>实际交通以导航为准</span></div>
+          <div class="map-fallback" id="mapFallback" hidden>
+            <strong>地图底图暂时没有加载</strong>
+            <span>景点卡片和详情仍可正常浏览。</span>
+          </div>
+        </section>
+      </section>
+    </template>
+
+    <template id="detailViewTemplate">
+      <article class="detail-page" id="detailPage"></article>
+    </template>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="destinations.js"></script>
+    <script src="nanshan-guides.js"></script>
+    <script src="photo-gallery.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

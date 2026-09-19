@@ -223,6 +223,121 @@ const photoGalleries = {
       "author": "薪享柿橙🍊"
     }
   ],
+  "lianhuashan": [
+    {
+      "src": "assets/photos/futian-lianhuashan-xhs.webp",
+      "caption": "莲花山山顶俯瞰市民中心与CBD（小红书实拍）",
+      "source": "https://www.xiaohongshu.com/search_result/6a96c27c0000000027015349?xsec_token=AB9n1grqxygvCUEIH3KnX4drZ-9eZC9AQ_LvmANXwn-nI=&xsec_source=",
+      "author": "背包里的手记"
+    },
+    {
+      "src": "assets/photos/futian-lianhuashan-1.webp",
+      "caption": "莲花山俯瞰市民中心与福田天际线（2018年实拍）",
+      "source": "https://commons.wikimedia.org/wiki/File:Civic_Center,_Shenzhen_Lianhuashan_Park_(2018.9)_Daytime.jpg",
+      "author": "Sparktour（CC BY-SA 4.0）",
+      "sourceLabel": "Wikimedia Commons"
+    },
+    {
+      "src": "assets/photos/futian-lianhuashan-2.webp",
+      "caption": "莲花山夜间俯瞰市民中心（实拍）",
+      "source": "https://commons.wikimedia.org/wiki/File:Night_of_Civic_Center_Shenzhen_from_Lianhua_Mountain.jpg",
+      "author": "Sparktour（CC BY-SA 4.0）",
+      "sourceLabel": "Wikimedia Commons"
+    }
+  ],
+  "futian-museum": [
+    {
+      "src": "assets/photos/futian-museum-xhs.webp",
+      "caption": "深圳博物馆新馆展厅实拍",
+      "source": "https://www.xiaohongshu.com/search_result/6a7ab7fd000000002800a24a?xsec_token=ABeGtC16zo39Mcvu097mVl_9inxC8sSQwjRuy-sT_q1rc=&xsec_source=",
+      "author": "留白"
+    },
+    {
+      "src": "assets/photos/futian-museum-1.webp",
+      "caption": "深圳博物馆展厅实景（2023年实拍）",
+      "source": "https://commons.wikimedia.org/wiki/File:SZ_%E6%B7%B1%E5%9C%B3_Shenzhen_%E7%A6%8F%E7%94%B0_Futian_%E9%87%91%E7%94%B0%E8%B7%AF_Jintian_Road_%E6%B7%B1%E5%9C%B3%E5%8D%9A%E7%89%A9%E9%A4%A8_Shenzhen_Museum_interior_August_2023_Px3_14.jpg",
+      "author": "BAOSHUNLIN Hua 38383（CC BY-SA 4.0）",
+      "sourceLabel": "Wikimedia Commons"
+    },
+    {
+      "src": "assets/photos/futian-museum-2.webp",
+      "caption": "深圳博物馆建筑实景",
+      "source": "https://commons.wikimedia.org/wiki/File:Shenzhen_Museum.jpg",
+      "author": "Nishino Asuka（CC BY-SA 4.0）",
+      "sourceLabel": "Wikimedia Commons"
+    }
+  ],
+  "futian-mangrove": [
+    {
+      "src": "assets/photos/futian-mangrove-xhs.webp",
+      "caption": "福田红树林湿地实拍",
+      "source": "https://www.xiaohongshu.com/search_result/6a9388d7000000002303e82c?xsec_token=ABw9-7NVABZo7JBLU6zXiJETUESW89s8pNebRunO07h24=&xsec_source=",
+      "author": "小k丶"
+    },
+    {
+      "src": "assets/photos/futian-mangrove-1.webp",
+      "caption": "福田红树林湿地木栈道与候鸟景观",
+      "source": "https://huacheng.gz-cmc.com/pages/2020/06/11/fe534cdcf8914df99b322da1e958feb4.html",
+      "author": "广州日报·新花城实景报道",
+      "sourceLabel": "来源报道"
+    },
+    {
+      "src": "assets/photos/futian-mangrove-2.webp",
+      "caption": "红树林生态公园步道实景",
+      "source": "https://www.topchinatravel.com/china-attractions/shenzhen-mangrove-nature-reserve.htm",
+      "author": "Top China Travel 实景页",
+      "sourceLabel": "来源页"
+    }
+  ],
+  "futian-xiangmi": [
+    {
+      "src": "assets/photos/futian-xiangmi-xhs.webp",
+      "caption": "香蜜公园实景与花期观察",
+      "source": "https://www.xiaohongshu.com/search_result/6aa4b2b1000000002a02c587?xsec_token=AB2wTyFWEUrRn60uq2DA7VmjuINo7hpC6NQ5TxY81zAFQ=&xsec_source=",
+      "author": "就爱瞎玩"
+    },
+    {
+      "src": "assets/photos/futian-xiangmi-1.webp",
+      "caption": "香蜜公园湖面与福田高楼倒影",
+      "source": "https://bbs.zol.com.cn/dcbbs/d34039_9957.html",
+      "author": "ZOL 摄影论坛作者",
+      "sourceLabel": "来源页"
+    },
+    {
+      "src": "assets/photos/futian-xiangmi-2.webp",
+      "caption": "香蜜公园空中步道与城市景观",
+      "source": "https://www.hk01.com/%E6%97%85%E9%81%8A/964593/%E6%B7%B1%E5%9C%B3%E9%A6%99%E8%9C%9C%E5%85%AC%E5%9C%92%E9%83%8A%E9%81%8A%E6%94%BB%E7%95%A5-%E7%A9%BA%E4%B8%AD%E6%A3%A7%E9%81%93%E6%BC%AB%E9%81%8A%E6%A3%AE%E6%9E%97-%E9%81%8A%E6%A8%82%E5%A0%B4-%E6%96%B0%E6%89%8B%E8%A6%AA%E5%AD%90%E5%90%88%E9%81%A9",
+      "author": "香港01实景报道",
+      "sourceLabel": "来源报道"
+    }
+  ],
+  "futian-garden-expo": [
+    {
+      "src": "assets/photos/futian-garden-expo-1.webp",
+      "caption": "园博园江南园林与石桥实景",
+      "source": "https://www.sohu.com/a/541648712_121123867",
+      "author": "搜狐实景报道",
+      "sourceLabel": "来源报道"
+    }
+  ],
+  "futian-shuiwei": [
+    {
+      "src": "assets/photos/futian-shuiwei-1.webp",
+      "caption": "水围村夜间餐饮街区实景",
+      "source": "https://www.sohu.com/a/343012563_100294420",
+      "author": "搜狐实景报道",
+      "sourceLabel": "来源报道"
+    }
+  ],
+  "futian-baguayi": [
+    {
+      "src": "assets/photos/futian-huaqiangbei-1.webp",
+      "caption": "福田街区肠粉摊实景（华强北片区）",
+      "source": "https://k.sina.cn/article_5991648605_165214d5d001004oop.html",
+      "author": "新浪新闻实景报道",
+      "sourceLabel": "来源报道"
+    }
+  ],
   "xiaomeisha": [
     {
       "src": "assets/photos/xiaomeisha-1.webp",

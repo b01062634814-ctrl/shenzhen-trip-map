@@ -88,6 +88,17 @@ const places = [
     transit: "地铁 3 / 4 号线少年宫站",
     summary: "用不太费力的一段上坡，换一张深圳中心区的经典天际线。",
     description: "莲花山是第一次看深圳城市轮廓很合适的起点。山不高，沿路绿荫多，到山顶广场后可以俯瞰市民中心与福田天际线。日落前抵达更舒服，也能顺势把市民中心一带连成一次傍晚散步。",
+    features: "免费城市公园，主峰海拔不高，但能把市民中心、平安金融中心和福田高楼放进同一张视野。这里的核心是短时登高、城市观察和傍晚风筝广场氛围。",
+    playability: "适合第一次到福田、想看深圳城市中轴线，又不想安排高强度徒步的人。普通步速上山约 20–30 分钟；如果只想看景，登顶后停留即可，不必绕完整个公园。",
+    food: "下山可步行接市民中心、中心书城及福中路商圈；想吃得更集中，可转去水围或八卦岭，不要把山顶当作固定餐饮点。",
+    itinerary: ["从少年宫站出站后选择南门或西门，沿绿荫步道上山。", "到山顶广场看市民中心和福田天际线，晴天傍晚预留拍照时间。", "下山后在市民中心片区散步，或按当天体力转去附近商圈吃饭。"],
+    metro: [["5","塘朗 → 深圳北站","往黄贝岭方向"],["4","深圳北站 → 少年宫","往福田口岸方向"]],
+    lastWalk: "少年宫站按公园指引前往入口；南门、西门和山顶步道不是同一个出入口，按体力选择。",
+    researchSources: [
+      ["地铁直达经典徒步线20分钟登顶｜莲花山公园", "https://www.xiaohongshu.com/search_result/6a96c27c0000000027015349?xsec_token=AB9n1grqxygvCUEIH3KnX4drZ-9eZC9AQ_LvmANXwn-nI=&xsec_source="],
+      ["深圳莲花山保姆级｜轻松登顶看CBD", "https://www.xiaohongshu.com/search_result/6aa502b4000000002a026fab?xsec_token=ABIt4d_y034tY4ZgzF7DbCaW_fG5_ax1hWuFo4Ums4oAE=&xsec_source="],
+      ["莲花山怎么变成这样了？", "https://www.xiaohongshu.com/search_result/6aa61b03000000002701691c?xsec_token=ABbffyVQ0OeEgVMDODRqMUvzGV7LmmFNdcrJ571Gw82hw=&xsec_source="]
+    ],
     tips: ["山顶视野最好，普通步速从南门上去约需半小时。", "晴天傍晚更出片，但热门机位要稍微等一等。", "下山后可步行接市民中心、中心书城一带。"],
     image: "https://img.pconline.com.cn/images/upload/upc/tx/itbbs/1707/22/c12/53427318_1500698665382_mthumb.jpg",
     source: "https://www.sgss8.cc/tpdq/935175/"
@@ -500,7 +511,7 @@ function renderDetail(id) {
         ${place.features ? `<h2>这个地方有什么特点</h2><p>${place.features}</p><h2>可玩性 · 适合怎样逛</h2><p>${place.playability}</p>` : ''}
         <h2>怎么玩</h2>
         ${place.itinerary ? `<ol class="itinerary-list">${place.itinerary.map(step=>`<li>${step}</li>`).join('')}</ol>` : `<p>${place.description}</p>`}
-        ${place.photos ? `<section class="photo-section" aria-label="景点实景照片"><h2>实景照片</h2><p class="photo-note">来自游客或摄影作者公开发布的实拍，保留原图内容。点击可放大；照片中的展览、装置与天气不代表出行当天。</p><div class="photo-grid">${place.photos.map(photo=>`<figure><a href="${escapeHtml(photo.src)}" target="_blank" rel="noreferrer" aria-label="放大：${escapeHtml(photo.caption)}"><img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.caption)}" loading="lazy" /></a><figcaption>${escapeHtml(photo.caption)}<br><a href="${escapeHtml(photo.source)}" target="_blank" rel="noreferrer">小红书 · ${escapeHtml(photo.author)} ↗</a></figcaption></figure>`).join('')}</div></section>` : ''}
+        ${place.photos ? `<section class="photo-section" aria-label="景点实景照片"><h2>实景照片</h2><p class="photo-note">来自游客或摄影作者公开发布的实拍，保留原图内容。点击可放大；照片中的展览、装置与天气不代表出行当天。</p><div class="photo-grid">${place.photos.map(photo=>`<figure><a href="${escapeHtml(photo.src)}" target="_blank" rel="noreferrer" aria-label="放大：${escapeHtml(photo.caption)}"><img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.caption)}" loading="lazy" /></a><figcaption>${escapeHtml(photo.caption)}<br><a href="${escapeHtml(photo.source)}" target="_blank" rel="noreferrer">${escapeHtml(photo.sourceLabel || (photo.source.includes('xiaohongshu.com') ? '小红书' : '来源'))} · ${escapeHtml(photo.author)} ↗</a></figcaption></figure>`).join('')}</div></section>` : ''}
         ${place.food ? '<h2>附近怎么吃</h2><p>' + place.food + '</p>' : ''}
         ${destinationGuides[place.city].foods.length ? '<h2>' + place.city + '吃什么</h2><div class="detail-food">' + foodHtml(place.city) + '</div>' : ''}
         <h2>到场前记住这三件事</h2>

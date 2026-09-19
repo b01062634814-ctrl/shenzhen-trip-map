@@ -516,7 +516,7 @@ function renderDetail(id) {
         ${destinationGuides[place.city].foods.length ? '<h2>' + place.city + '吃什么</h2><div class="detail-food">' + foodHtml(place.city) + '</div>' : ''}
         <h2>到场前记住这三件事</h2>
         <ol class="play-list">${place.tips.map((tip, index) => `<li><b>${index + 1}</b><span>${tip}</span></li>`).join("")}</ol>
-        ${place.researchSources ? `<section class="research-sources"><h2>小红书实测与评论复核</h2><p>不是照抄单篇笔记：已对照正文和评论中的正反反馈。链接可能需要登录小红书查看。</p><ul>${place.researchSources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ul></section>` : ''}
+        ${place.researchSources ? `<section class="research-sources"><h2>小红书实测与评论复核</h2><p>不是照抄单篇笔记：已对照公开搜索卡片、正文摘要和可见评论中的正反反馈。链接可能需要登录小红书查看。</p><ul>${place.researchSources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ul></section>` : ''}
       </section>
       <aside class="distance-box">
         <h2>离其他地点多远</h2>

@@ -209,7 +209,7 @@ extraPlaces.push(...[
     metro:[["5","塘朗 → 深圳北站","往黄贝岭方向"],["4","深圳北站 → 市民中心","往福田口岸方向"],["2","市民中心 → 香蜜","往赤湾方向"]],
     lastWalk:"香蜜站出站后按当天开放口步行；公园不同入口到湖区的距离不同。",
     tips:["香蜜公园与香蜜湖公园不是同一地点，导航时核对全名。","雨季草地、木栈道可能湿滑，花期和设施开放以现场为准。","周末草坪和儿童区域人流较大，拍照时给通行留出空间。"],
-    source:"https://www.hk01.com/旅遊/962460/深圳香蜜公園打卡攻略",
+    source:"https://www.hk01.com/%E6%97%85%E9%81%8A/962460/%E6%B7%B1%E5%9C%B3%E9%A6%99%E8%9C%9C%E5%85%AC%E5%9C%92%E6%89%93%E5%8D%A1%E6%94%BB%E7%95%A5",
     researchSources:[["小红书：香蜜公园花期与玩法","https://www.xiaohongshu.com/search_result/6aa4b2b1000000002a02c587?xsec_token=AB2wTyFWEUrRn60uq2DA7VmjuINo7hpC6NQ5TxY81zAFQ=&xsec_source="],["小红书：香蜜公园与香蜜湖公园对比","https://www.xiaohongshu.com/search_result/6a72b1c10000000006004b58?xsec_token=ABACjOUxlPLyPk0wTyqoG7l6TUYD3BvlFtgtloGdc1YJ8=&xsec_source="],["小红书：香蜜公园绿道攻略","https://www.xiaohongshu.com/search_result/6a9109bd000000002903f63d?xsec_token=ABl3OKUUyzZf2jARosqB4K_D0WDEPLtf1ps5vsB9vPm9Q=&xsec_source="]]
   },
   {
@@ -252,7 +252,7 @@ extraPlaces.push(...[
     food:"先问清菜价、份量和是否有最低消费，潮汕卤味、粿品、牛肉火锅和烧烤可按人数分食；酒水和加工费需另问。",
     itinerary:["先到八卦一路走一圈，观察店铺排队与当日菜单。","选择一家主食店，再按余量加小吃或甜品，避免一次点太多。","饭后可在八卦岭街区短走，按明亮主路回燕南或红岭北方向。"],
     metro:[["5","塘朗 → 深圳北站","往黄贝岭方向"],["4","深圳北站 → 市民中心","往福田口岸方向"],["2","市民中心 → 燕南","往赤湾方向"]],
-    lastWalk:"八卦一路店铺分散在多条街巷，导航时使用具体店名，晚间按照明良好的道路步行。",
+    lastWalk:"八卦一路店铺分散在多条街巷，导航时使用具体店名，晚间按照明亮的道路步行。",
     tips:["‘老字号’和‘必吃榜’只是线索，现场营业、等位和口味可能与旧帖不同。","点餐前确认份量、价格和加工费，先小份试味再加菜。","街区是居民和商户日常空间，拍摄店内或摊主先询问。"],
     source:"https://k.sina.cn/article_5991648605_165214d5d001004oop.html",
     researchSources:[["八卦岭片区公开美食资料","https://k.sina.cn/article_5991648605_165214d5d001004oop.html"],["小红书：八卦岭美食街","https://www.xiaohongshu.com/search_result/6963b7cf000000001a022553?xsec_token=ABZdbIQ7l8v1i4optwfFAfuMNHssRWZ234SxUUD4R4IoaU=&xsec_source="],["小红书：八卦一路试吃","https://www.xiaohongshu.com/search_result/69f399cf0000000035030d72?xsec_token=ABlxIFSzju573OZqBuyoZk-iwtJ8dwuMdzdOitKHvmYgU=&xsec_source="],["小红书：八卦岭美食榜","https://www.xiaohongshu.com/search_result/6a82aa9300000000220110f4?xsec_token=AB4b5yjGWqG6w_7gT80WFJC7-5PdJnTxLI7iShqf763eo=&xsec_source="]]

@@ -24,6 +24,7 @@
         </a>
         <div class="top-actions">
           <span class="live-pill">4 个目的地</span>
+          <button class="ghost-button" id="printButton" type="button" hidden>打印顺德路线</button>
           <button class="ghost-button" id="fitMapButton" type="button">查看全城</button>
         </div>
       </header>
@@ -42,6 +43,7 @@
           <label class="city-picker">目的地 <select id="citySelect"><option>深圳</option><option>广州</option><option>顺德</option><option>汕头</option></select></label>
           <p id="cityIntro" class="city-intro"></p>
           <details class="food-guide" id="foodGuide"><summary>当地吃什么</summary><div id="foodList"></div></details>
+          <section class="route-planner" id="routePlanner" hidden aria-label="顺德省力动线"></section>
           <div class="filters" id="filters" aria-label="景点分类">
             <button class="filter active" data-filter="全部">全部</button>
             <button class="filter" data-filter="海边">海边</button>
@@ -51,6 +53,7 @@
             <button class="filter" data-filter="乐园">乐园</button>
             <button class="filter" data-filter="动物园">动物园</button>
             <button class="filter" data-filter="购物">购物</button>
+            <button class="filter" data-filter="美食">美食</button>
           </div>
 
           <div class="place-list" id="placeList"></div>
@@ -58,7 +61,7 @@
 
         <section class="map-stage" aria-label="景点互动地图">
           <div id="map"></div>
-          <div class="map-note"><span>地图距离为直线估算</span><b>·</b><span>实际交通以导航为准</span></div>
+          <div class="map-note"><span id="mapNoteText">地图距离为直线估算</span><b>·</b><span>实际交通以导航为准</span></div>
           <div class="map-fallback" id="mapFallback" hidden>
             <strong>地图底图暂时没有加载</strong>
             <span>景点卡片和详情仍可正常浏览。</span>
@@ -72,9 +75,10 @@
     </template>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="destinations.js?v=20260919-futian"></script>
+    <script src="destinations.js?v=20260920-shunde"></script>
+    <script src="shunde-guides.js?v=20260920-shunde"></script>
     <script src="nanshan-guides.js"></script>
     <script src="photo-gallery.js?v=20260919-futian"></script>
-    <script src="app.js?v=20260919-futian"></script>
+    <script src="app.js?v=20260920-shunde"></script>
   </body>
 </html>

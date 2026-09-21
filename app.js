@@ -360,7 +360,7 @@ function renderRoutePlanner() {
         }).join("")}</ol>
       </article>`).join("")}
     </div>
-    <div class="route-alert"><b>琼花茶馆暂不落针</b><span>同名点位未核准。补地图分享链接后会插入最近的一段，当前不猜坐标。</span></div>
+    <div class="route-alert"><b>琼花戏楼演出提醒</b><span>已按华盖里四巷 14 号加入 D1；演出场次、订座和消费规则请在出发前确认。</span></div>
   `;
   panel.querySelector(".route-switcher").addEventListener("click", event => {
     const button = event.target.closest("[data-route]");

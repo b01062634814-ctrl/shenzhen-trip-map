@@ -56,10 +56,15 @@
 .food-frequency-list small { grid-column:1 / -1; color:#66776f; font-size:10px; line-height:1.45; }
 .food-frequency details { margin-top:10px; font-size:11px; }
 .food-frequency summary { cursor:pointer; color:#216653; font-weight:700; }
-.food-frequency details p { margin:8px 0; font-size:10px; line-height:1.55; }
-.food-frequency details ol { max-height:190px; margin:0; padding-left:20px; overflow:auto; }
-.food-frequency details li { padding:3px 0; line-height:1.45; }
-.food-frequency details a { color:#31584d; }
+.ranking-group { padding:9px 10px; border:1px solid #d8e5e0; border-radius:11px; background:#f7faf8; }
+.ranking-group[open] > summary { margin-bottom:8px; }
+.ranking-group .food-frequency-list { margin-top:0; }
+.ranking-group .food-frequency-list > a, .ranking-group .food-frequency-list > div { background:#fff; }
+.play-ranking-list strong { color:#376b7e; }
+.source-group p { margin:8px 0; font-size:10px; line-height:1.55; }
+.source-group ol { max-height:220px; margin:0; padding-left:20px; overflow:auto; }
+.source-group li { padding:3px 0; line-height:1.45; }
+.source-group a { color:#31584d; }
 .place-text-cover { display:grid; align-content:center; text-align:center; background:#dcebe7; color:#075660; font-size:20px; font-weight:700; }
 .place-text-cover small { margin-top:8px; font-size:12px; font-weight:400; }
 .boundary-legend { padding: 12px 14px; background: rgba(255,255,255,.96); border-radius: 12px; box-shadow: 0 3px 16px #09223122; font-size: 14px; font-weight: 700; color: #092231; }
@@ -171,6 +176,8 @@ a { color: inherit; }
 .custom-pin.active .pin-dot { width: 42px; height: 42px; background: var(--coral); }
 .food-pin .pin-dot { background:#a44f35; }
 .food-pin .pin-label { border:1px solid #e4b9ab; color:#713420; }
+.play-pin .pin-dot { background:#28708a; }
+.play-pin .pin-label { border:1px solid #b8d9e3; color:#1d5366; }
 .ronggui-pin .pin-dot { background:#5c4bb7; }
 .ronggui-pin .pin-label { border:1px solid #c8c0ef; color:#40317f; }
 .distance-label { color: var(--ink); background: rgba(255,255,255,.9); border: 0; border-radius: 999px; box-shadow: 0 4px 12px rgba(9,34,49,.12); font-size: 10px; font-weight: 700; padding: 3px 6px; }

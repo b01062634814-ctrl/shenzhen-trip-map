@@ -17,6 +17,48 @@ const shundeRoutes = [
   }
 ];
 
+// This is a discoverability count, not a restaurant score: within each of the
+// 24 sampled guides / field videos, the same food is counted at most once.
+const shundeFoodResearch = {
+  sampleSize: 24,
+  method: "本轮单独抽样 24 篇公开攻略、实走视频与探店资料；同一来源同一道菜最多记 1 次。提及次数只表示常被写到，不代表口味、卫生或商业推广强弱。",
+  ranking: [
+    { rank: 1, food: "双皮奶 / 水牛奶甜品", mentions: 19, placeId: "sd-minxin-huagai", note: "老城最顺路；两人先合点 1 份" },
+    { rank: 2, food: "粥底火锅 / 毋米粥", mentions: 11, placeId: "sd-wumizhou", note: "正餐级；与赋狮楼二选一" },
+    { rank: 3, food: "顺德鱼生 / 一鱼多吃", mentions: 10, placeId: "sd-xinshunfa", note: "高频但非必吃；淡水鱼生有寄生虫风险" },
+    { rank: 4, food: "桑拿鸡", mentions: 8, placeId: "sd-baiyi", note: "适合替换一顿正餐，不追加" },
+    { rank: 5, food: "烧鹅", mentions: 8, placeId: null, note: "店铺分散，本版不为凑点位强塞远店" },
+    { rank: 5, food: "顺德鱼皮", mentions: 8, placeId: "sd-huagai", note: "华盖路小份探索，先看当天出品" },
+    { rank: 7, food: "炸牛奶 / 炒牛奶", mentions: 5, placeId: "sd-minxin-huagai", note: "与双皮奶共享一份甜品额度" }
+  ],
+  sources: [
+    ["Klook：15 大顺德必吃美食", "https://www.klook.com/zh-HK/blog/foshan-food/"],
+    ["香港01：佛山美食 10 大推介", "https://global.hk01.com/%E6%97%85%E6%B8%B8/60351471/%E4%BD%9B%E5%B1%B1%E7%BE%8E%E9%A3%9F10%E5%A4%A7%E6%8E%A8%E4%BB%8B-%E9%9D%9E%E9%81%97%E7%B2%A5%E5%BA%95%E7%81%AB%E9%94%85-%E9%A1%BA%E5%BE%B7%E9%B1%BC%E7%94%9F-%E6%A1%91%E6%8B%BF%E9%B8%A1-%E6%AD%A3%E5%AE%97%E5%8F%8C%E7%9A%AE%E5%A5%B6"],
+    ["Trip：顺德美食一站式攻略", "https://my.trip.com/moments/detail/shunde-district-120098-139226453?locale=zh-MY"],
+    ["U Travel：顺德高评分餐厅整理", "https://utravel.com.hk/"],
+    ["Yahoo：顺德 10 大地道美味", "https://hk.news.yahoo.com/"],
+    ["顺德城市网：代表美食盘点", "https://shundeplus.shundecity.com/index.php/m/a/133737.html"],
+    ["携程：食在顺德", "https://gs.ctrip.com/"],
+    ["知乎：顺德寻味 48 小时", "https://zhuanlan.zhihu.com/"],
+    ["携程：顺德两日一夜逛吃", "https://gs.ctrip.com/"],
+    ["Trip：清晖园周边必吃", "https://hk.trip.com/"],
+    ["佛山+：清晖园附近觅食", "https://content.foshanplus.com/"],
+    ["佛山+：徒步线路周边美食", "https://content.foshanplus.com/"],
+    ["Klook：顺德美食一日游", "https://www.klook.com/"],
+    ["实走视频：顺德 3 日 2 夜吃住", "https://www.youtube.com/watch?v=Me6UDuQCx_8"],
+    ["实走视频：鱼生与粥底火锅", "https://www.youtube.com/watch?v=s7idS-OZY70"],
+    ["实走视频：金榜上街传统小食", "https://www.youtube.com/watch?v=lZiPFKZfPIE"],
+    ["实走视频：华盖路小食街", "https://www.youtube.com/watch?v=sQLI0QizAsc"],
+    ["实走视频：大良乡村早茶", "https://www.youtube.com/watch?v=xC4-INWJBQ4"],
+    ["实走视频：大良街坊粥店", "https://www.youtube.com/watch?v=EI3fm-D8a7U"],
+    ["Instagram：顺德美食 7 选", "https://www.instagram.com/reel/C_czAvfP3FB/"],
+    ["Instagram：顺德 24 小时快闪", "https://www.instagram.com/reel/DIePIe3pcNc/"],
+    ["Facebook：顺德现点现做美食盘点", "https://www.facebook.com/travelogcn/videos/1606047864497235/"],
+    ["Facebook：新顺发鱼店探店", "https://www.facebook.com/groups/eat.whereveruare/posts/8384705098315550/"],
+    ["大众点评：顺德商圈菜品聚合", "https://m.dianping.com/" ]
+  ]
+};
+
 const shundeUpdates = {
   "sd-qinghui": {
     category: "人文", area: "大良老城", lat: 22.8383866, lng: 113.2498286,
@@ -32,6 +74,7 @@ const shundeUpdates = {
   },
   "sd-jinbang": {
     name: "金榜上街", category: "美食", area: "大良老城", lat: 22.8402481, lng: 113.2425951,
+    foodRank: 1, foodMentions: "双皮奶 / 水牛奶甜品 · 19/24 篇提到",
     duration: "45–75 分钟", best: "D1 到达后少量早餐", transit: "从大良钟楼站步行约 10–15 分钟",
     summary: "钟楼站后的第一站；奶制品与小食只选一两样分食，不要一早吃撑。",
     description: "金榜上街不是只为一家店而来。先沿街看当天开门、排队和菜单，再从双皮奶、水牛奶或炸物里选一两样分食；口味评价分歧很大，现场判断比照着单一榜单更稳。",
@@ -105,6 +148,7 @@ extraPlaces.push(...[
   {
     id: "sd-fushilou", city: "顺德", area: "大良", category: "美食",
     name: "赋狮楼·顺德粥底火锅", lat: 22.831814003011843, lng: 113.25435201576364,
+    foodRank: 2, foodMentions: "粥底火锅 / 毋米粥 · 11/24 篇提到",
     duration: "1.5–2 小时", best: "D1 晚餐备选；有胃口再去", transit: "碧鉴路 56 号；从琼花戏楼步行约 5–8 分钟",
     summary: "粥底火锅作为晚餐备选，不与琼花戏楼强行连吃两顿大餐。",
     description: "若午餐较早、下午继续逛且晚上确实饿，再来吃粥底火锅；否则直接回酒店，把它留作下次。先确认当天食材、份量和计价，再少量分批下锅。",
@@ -114,6 +158,66 @@ extraPlaces.push(...[
     itinerary: ["先判断午餐后的真实饥饿程度。", "有胃口再到店看菜单和等位；不饿就跳过。", "晚餐后网约车回国泰南路住宿区。"],
     tips: ["地址已核到碧鉴路 56 号，导航当日结果优先。", "介意预制时可现场逐道询问制作与备料方式。", "龙的酒楼按你的偏好不纳入路线；本项目也不对其制作方式作未经核实的断言。"],
     source: "https://map.qq.com/m/detail/poi/poid=6739000127798680704"
+  },
+  {
+    id: "sd-minxin-huagai", city: "顺德", area: "大良老城", category: "美食",
+    name: "民信老铺（华盖路店）", pinName: "★双皮奶｜民信老铺", lat: 22.8371528, lng: 113.2485551,
+    foodRank: 1, foodMentions: "双皮奶 / 水牛奶甜品 · 19/24 篇提到",
+    duration: "20–40 分钟", best: "D1 老城段分食一份", transit: "华盖路 115–119 号一带；清晖园与华盖里步行可达",
+    summary: "24 篇样本中提及最多的类别；原味双皮奶优先，两个人分一份后再决定要不要加炸牛奶。",
+    description: "这里作为高频菜“落到地图”的代表点，不代表它一定胜过金榜小店。样本对双皮奶甜度、奶味和排队价值评价分歧明显，所以把它安排为小份比较，而不是必须完成的打卡任务。",
+    features: "双皮奶、姜撞奶、炸牛奶等水牛奶甜品集中，位置与 D1 老城线重合。",
+    playability: "先点一份原味双皮奶，两个人试过甜度和奶味后，再决定是否加第二样。",
+    food: "高频统计：双皮奶/水牛奶甜品 19/24；炸牛奶/炒牛奶 5/24。",
+    itinerary: ["清晖园或华盖里途中顺路到店。", "先合点一份原味双皮奶。", "若琼花戏楼即将开餐，不再追加炸物。"],
+    tips: ["地址资料在华盖路 115–119 号与华盖里 1 号两种写法间有差异，地图针按华盖里街内 OSM 门店点标注，导航时核对店名。", "19/24 是内容提及频次，不是评分。", "甜度和口感高度主观，排队过长时金榜上街同类小店可以替代。"],
+    source: "https://hk.trip.com/restaurant/china/foshan/detail/minxin-old-shop-10561901/",
+    researchSources: [["Trip：门店地址与游客评价", "https://hk.trip.com/"], ["永安旅游：华盖路店地址", "https://www.wingontravel.com/"], ["大良水牛奶与双皮奶背景", "https://www.thepaper.cn/newsDetail_forward_8840075"]]
+  },
+  {
+    id: "sd-wumizhou", city: "顺德", area: "大良老城西北", category: "美食",
+    name: "太艮堡毋米粥（锦龙路总店）", pinName: "★粥底火锅｜毋米粥", lat: 22.8520517, lng: 113.2367342,
+    foodRank: 2, foodMentions: "粥底火锅 / 毋米粥 · 11/24 篇提到",
+    duration: "1.5–2 小时", best: "单独作为一顿正餐", transit: "锦龙路 270 号；从钟楼/金榜短途网约车更省力",
+    summary: "第二高频正餐；与赋狮楼同属粥底火锅路线，两家二选一，不要为了榜单连续吃。",
+    description: "把食材按海鲜、肉、蔬菜的顺序少量分批涮，最后喝粥底。它位于老城西北侧，若 D1 已预约琼花戏楼，不建议再为它改主线；可作为琼花场次不合适时的替换正餐。",
+    features: "“有米不见米”的粥水锅底，重点在食材下锅顺序和最后吸收鲜味的粥。",
+    playability: "两个人选一到两种主料即可；先问份量、计价、茶位与当天鲜活食材。",
+    food: "高频统计：粥底火锅/毋米粥 11/24。代表吃法是一鲜、二荤、三素、最后喝粥。",
+    itinerary: ["只在替换一顿正餐时加入。", "到店先问两人份量和当天食材。", "吃完直接按下一站叫车，不再追加赋狮楼。"],
+    tips: ["地图坐标由公开地图坐标转换为 WGS84，找入口仍以锦龙路 270 号导航为准。", "与赋狮楼功能重叠，二选一。", "介意预制时逐道询问丸滑、小吃与配菜的制作方式。"],
+    source: "https://www.amap.com/place/B0FFH7FW5P",
+    researchSources: [["Klook：粥底火锅介绍与锦龙路地址", "https://www.klook.com/zh-HK/blog/foshan-food/"], ["OpenRice：锦龙路 270 号门店资料", "https://www.openrice.com.cn/"]]
+  },
+  {
+    id: "sd-xinshunfa", city: "顺德", area: "大良南部", category: "美食",
+    name: "新顺发鱼店·金牌鱼生（大良店）", pinName: "★鱼生｜新顺发", lat: 22.8177, lng: 113.2548,
+    foodRank: 3, foodMentions: "顺德鱼生 / 一鱼多吃 · 10/24 篇提到",
+    duration: "1.5–2 小时", best: "明确接受生食风险时", transit: "同兴路 8 号广地商贸城 3 栋 175–180 铺；建议网约车",
+    summary: "第三高频，但淡水鱼生并非必吃项；地图保留探索点，主路线默认不安排。",
+    description: "公开资料常写一鱼多吃：鱼生、鱼皮、骨腩和鱼粥。但生食淡水鱼存在寄生虫风险，不能靠“现杀”“看起来新鲜”消除；不接受风险时，点熟食鱼、鱼皮或鱼粥即可。",
+    features: "一鱼多吃和刀工体验集中；地点离 D1 老城核心、D2 住宿区都需要打车。",
+    playability: "把它视为有明确风险偏好的可选正餐，不为“高频”勉强尝生食。",
+    food: "高频统计：顺德鱼生/一鱼多吃 10/24；鱼皮另有 8/24。可只选彻底熟制菜。",
+    itinerary: ["决定前先确认所有同行者都接受淡水鱼生风险。", "不接受时只点彻底熟制的一鱼多吃菜式。", "加入本店就替换一顿正餐，不与琼花、赋狮楼叠加。"],
+    tips: ["地图针按同兴路与商贸城公开地址近似标注，导航请用完整店名和门牌。", "孕妇、儿童、老年人及免疫力较弱者不建议生食。", "鱼生高频不等于低风险，本地图默认不把它列入主路线。"],
+    source: "https://www.openrice.com/zh/foshan/r-%E6%96%B0%E9%A0%86%E7%99%BC%E9%AD%9A%E5%BA%97-%E9%87%91%E7%89%8C%E9%AD%9A%E7%94%9F-%E5%A4%A7%E8%89%AF-%E7%B2%B5%E8%8F%9C-%E5%BB%A3%E6%9D%B1-r8364551",
+    researchSources: [["OpenRice：门店地址、营业段与招牌菜", "https://www.openrice.com/zh/foshan/r-%E6%96%B0%E9%A0%86%E7%99%BC%E9%AD%9A%E5%BA%97-%E9%87%91%E7%89%8C%E9%AD%9A%E7%94%9F-%E5%A4%A7%E8%89%AF-%E7%B2%B5%E8%8F%9C-%E5%BB%A3%E6%9D%B1-r8364551"], ["香港01：一鱼多吃与地址", "https://global.hk01.com/%E6%97%85%E6%B8%B8/60351471/%E4%BD%9B%E5%B1%B1%E7%BE%8E%E9%A3%9F10%E5%A4%A7%E6%8E%A8%E4%BB%8B-%E9%9D%9E%E9%81%97%E7%B2%A5%E5%BA%95%E7%81%AB%E9%94%85-%E9%A1%BA%E5%BE%B7%E9%B1%BC%E7%94%9F-%E6%A1%91%E6%8B%BF%E9%B8%A1-%E6%AD%A3%E5%AE%97%E5%8F%8C%E7%9A%AE%E5%A5%B6"]]
+  },
+  {
+    id: "sd-baiyi", city: "顺德", area: "大良老城西侧", category: "美食",
+    name: "百益桑拿鸡（大良店）", pinName: "★桑拿鸡｜百益", lat: 22.8426, lng: 113.2436,
+    foodRank: 4, foodMentions: "桑拿鸡 · 8/24 篇提到",
+    duration: "1.5–2 小时", best: "提前取号，替换一顿正餐", transit: "凤山中路 47 号附近；靠近金榜商圈，地图针为门牌路段参考",
+    summary: "第四高频，蒸气现熟是它的体验重点；排队和份量反馈分歧较大，作为正餐替换项。",
+    description: "桑拿鸡以蒸气短时蒸熟鸡肉，汁水落入下层汤底。公开攻略反复提及百益大良店，但游客反馈也常提到热门时段等位，因此不把它与琼花戏楼、粥底火锅连续安排。",
+    features: "蒸气鸡、下层汤底和分批现蒸的过程感明显，适合两人共享。",
+    playability: "选鸡肉加一两份蔬菜即可；先问最小份量、等位和收费项目。",
+    food: "高频统计：桑拿鸡 8/24。先吃鸡、再蒸菜、最后喝吸收肉汁的汤底。",
+    itinerary: ["D1 在金榜附近先看等位。", "若选择本店，就替换琼花或当日晚餐，不追加第二顿正餐。", "饭后再按体力回老城或直接去住宿区。"],
+    tips: ["公开资料写作凤山中路 47 号附近；地图针按该路段近似标注，入口以导航为准。", "热门时段可能排队，先看现场再决定。", "介意预制时重点询问丸滑、腌制小吃和配菜；鸡肉现蒸不代表全桌所有菜都现制。"],
+    source: "https://m.dianping.com/shop/1441139188?msource=applemaps",
+    researchSources: [["Klook：百益大良店地址与桑拿鸡吃法", "https://www.klook.com/zh-HK/blog/foshan-food/"], ["大众点评：大良店门店页", "https://m.dianping.com/shop/1441139188?msource=applemaps"]]
   },
   {
     id: "sd-shunfeng", city: "顺德", area: "大良", category: "公园",
@@ -210,8 +314,12 @@ extraPlaces.push(...[
 ]);
 
 destinationGuides["顺德"] = {
-  intro: "已复核累计 35 篇小红书游记/评论及官方、地图和游客资料。D1 从大良钟楼站单向走老城，D2 从国泰南路住宿区走公园—博物馆—午休—欢乐海岸；地图实线步行、虚线打车。",
+  intro: "在原有 35 篇小红书游记/评论基础上，本轮再抽样 24 篇公开攻略、视频与探店资料，并把高频美食代表店标进地图。D1 从大良钟楼站单向走老城，D2 从国泰南路住宿区走公园—博物馆—午休—欢乐海岸。",
   foods: [
+    ["高频榜第一：双皮奶 / 水牛奶甜品（19/24）", "地图标出民信华盖路店与金榜上街；两个人先合点一份，甜度不合就停止。"],
+    ["高频榜第二：粥底火锅 / 毋米粥（11/24）", "地图标出太艮堡锦龙路总店与赋狮楼；只选一家作为正餐。"],
+    ["高频榜第三：顺德鱼生 / 一鱼多吃（10/24）", "地图标出新顺发大良店，但淡水鱼生有寄生虫风险，主路线默认不安排，可只点彻底熟食。"],
+    ["并列高频：桑拿鸡、烧鹅、鱼皮（各 8/24）", "桑拿鸡标出百益大良店；鱼皮可在华盖路小份探索；烧鹅店分散，本版不为凑点位强塞远店。"],
     ["D1 主餐：琼花戏楼", "华盖里四巷 14 号；优先按演出时段预约。它与赋狮楼二选一顿大餐，不连吃。"],
     ["D1 早餐：金榜上街少量探索", "双皮奶、姜撞奶、水牛奶或炸牛奶只选一两样分食；甜度和口味评价分歧大，以现场为准。"],
     ["晚餐备选：赋狮楼粥底火锅", "碧鉴路 56 号；午餐后真饿再去。鱼片或鸡肉少量分批涮，最后尝粥底。"],

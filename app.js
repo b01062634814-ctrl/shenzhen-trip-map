@@ -217,13 +217,19 @@ const app = document.querySelector("#app");
 const mapTemplate = document.querySelector("#mapViewTemplate");
 const detailTemplate = document.querySelector("#detailViewTemplate");
 const fitMapButton = document.querySelector("#fitMapButton");
+const printButton = document.querySelector("#printButton");
 let map = null;
 let markers = new Map();
 let distanceLayers = [];
+let routeLayers = [];
+let currentShundeRoute = "all";
 let currentFilter = "全部";
 let currentCity = "深圳";
 function matchesPlace(place) {
   return place.city === currentCity && (currentFilter === "全部" || place.category === currentFilter);
+}
+function hasMapPoint(place) {
+  return Number.isFinite(place.lat) && Number.isFinite(place.lng);
 }
 function foodHtml(city) {
   return destinationGuides[city].foods.map(([name, text]) => '<p><strong>' + name + '</strong><br>' + text + '</p>').join("");
@@ -319,6 +325,7 @@ function renderMap() {
   if (map) { map.remove(); map = null; }
   app.replaceChildren(mapTemplate.content.cloneNode(true));
   fitMapButton.hidden = false;
+  printButton.hidden = currentCity !== "顺德";
   currentFilter = "全部";
   const selector = document.querySelector("#citySelect");
   selector.value = currentCity;
@@ -326,9 +333,43 @@ function renderMap() {
   document.querySelector("#cityIntro").textContent = destinationGuides[currentCity].intro;
   document.querySelector("#foodList").innerHTML = foodHtml(currentCity);
   document.querySelector("#foodGuide").hidden = !destinationGuides[currentCity].foods.length;
+  document.querySelector("#mapNoteText").textContent = currentCity === "顺德" ? "彩线为建议顺序，不是逐路口导航" : "地图距离为直线估算";
+  renderRoutePlanner();
   renderCards();
   bindFilters();
   requestAnimationFrame(initMap);
+}
+
+function renderRoutePlanner() {
+  const panel = document.querySelector("#routePlanner");
+  if (!panel || currentCity !== "顺德") return;
+  panel.hidden = false;
+  panel.innerHTML = `
+    <div class="route-heading"><div><p class="eyebrow">地图上的省力动线</p><h2>两天走法</h2></div><span>实线步行 · 虚线打车</span></div>
+    <div class="route-switcher">
+      <button class="route-choice ${currentShundeRoute === "all" ? "active" : ""}" data-route="all">两条都看</button>
+      ${shundeRoutes.map(route => `<button class="route-choice ${currentShundeRoute === route.id ? "active" : ""}" data-route="${route.id}">${route.day}</button>`).join("")}
+    </div>
+    <div class="route-cards">
+      ${shundeRoutes.map(route => `<article class="mini-route" style="--route-color:${route.color}">
+        <div class="mini-route-title"><b>${route.day}</b><strong>${route.name}</strong></div>
+        <p>${route.summary}</p>
+        <ol>${route.stops.map((id, index) => {
+          const place = places.find(item => item.id === id);
+          return `<li><a href="#/place/${id}">${place?.name || id}</a>${index < route.segments.length ? `<small>${route.segments[index]}</small>` : ""}</li>`;
+        }).join("")}</ol>
+      </article>`).join("")}
+    </div>
+    <div class="route-alert"><b>琼花戏楼演出提醒</b><span>已按华盖里四巷 14 号加入 D1；演出场次、订座和消费规则请在出发前确认。</span></div>
+  `;
+  panel.querySelector(".route-switcher").addEventListener("click", event => {
+    const button = event.target.closest("[data-route]");
+    if (!button) return;
+    currentShundeRoute = button.dataset.route;
+    panel.querySelectorAll(".route-choice").forEach(item => item.classList.toggle("active", item === button));
+    drawShundeRoutes();
+    fitShundeRoute();
+  });
 }
 
 function bindFilters() {
@@ -352,7 +393,7 @@ function renderCards() {
       <div class="card-body">
         <div class="card-row"><h2>${place.name}</h2><span class="tag">${place.category}</span></div>
         <p>${place.summary}</p>
-        <div class="card-meta"><span>${place.area}</span><span>${place.duration}</span></div>
+        <div class="card-meta"><span>${place.pendingLocation ? "位置待核" : place.area}</span><span>${place.duration}</span></div>
       </div>
     </a>
   `).join("");
@@ -378,6 +419,7 @@ function initMap() {
   if (map) { map.remove(); map = null; }
   markers = new Map();
   distanceLayers = [];
+  routeLayers = [];
   cityBounds = null;
   map = L.map("map", { zoomControl: false, minZoom: 8 }).setView([22.552, 114.06], 10);
   L.control.zoom({ position: "topright" }).addTo(map);
@@ -386,10 +428,12 @@ function initMap() {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map).on("tileerror", () => { fallback.hidden = false; });
 
-  places.forEach((place, index) => {
+  const numberedPlaces = places.filter(place => place.city === currentCity && hasMapPoint(place));
+  places.filter(hasMapPoint).forEach(place => {
+    const index = numberedPlaces.findIndex(item => item.id === place.id);
     const icon = L.divIcon({
       className: "custom-pin",
-      html: `<div class="pin-wrap"><div class="pin-dot"><span>${String(index + 1).padStart(2, "0")}</span></div><div class="pin-label">${place.name}</div></div>`,
+      html: `<div class="pin-wrap"><div class="pin-dot"><span>${index >= 0 ? String(index + 1).padStart(2, "0") : "·"}</span></div><div class="pin-label">${place.name}</div></div>`,
       iconSize: [84, 57],
       iconAnchor: [42, 35]
     });
@@ -408,6 +452,7 @@ function initMap() {
     drawCityBoundary(map);
     drawDistrictBoundaries(map);
   }
+  if (currentCity === "顺德") drawShundeRoutes();
 }
 
 function fitAll() {
@@ -416,7 +461,7 @@ function fitAll() {
     map.fitBounds(cityBounds, {padding: [35, 45]});
     return;
   }
-  const visible = places.filter(matchesPlace);
+  const visible = places.filter(place => matchesPlace(place) && hasMapPoint(place));
   if (visible.length) map.fitBounds(visible.map(place => [place.lat, place.lng]), { padding: [42, 42] });
 }
 
@@ -424,12 +469,56 @@ function updateMarkerVisibility() {
   if (!map) return;
   places.forEach(place => {
     const marker = markers.get(place.id);
+    if (!marker) return;
     const visible = matchesPlace(place);
     if (visible && !map.hasLayer(marker)) marker.addTo(map);
     if (!visible && map.hasLayer(marker)) marker.removeFrom(map);
   });
   clearDistanceLayers();
+  if (currentCity === "顺德") drawShundeRoutes();
   fitAll();
+}
+
+function clearRouteLayers() {
+  if (!map) return;
+  routeLayers.forEach(layer => map.removeLayer(layer));
+  routeLayers = [];
+}
+
+function drawShundeRoutes() {
+  clearRouteLayers();
+  if (!map || currentCity !== "顺德" || currentFilter !== "全部") return;
+  const shownRoutes = currentShundeRoute === "all"
+    ? shundeRoutes
+    : shundeRoutes.filter(route => route.id === currentShundeRoute);
+  shownRoutes.forEach(route => {
+    route.stops.slice(0, -1).forEach((id, index) => {
+      const from = places.find(item => item.id === id);
+      const to = places.find(item => item.id === route.stops[index + 1]);
+      if (!from || !to || !hasMapPoint(from) || !hasMapPoint(to)) return;
+      const mode = route.segments[index] || "建议转场";
+      const isRide = mode.includes("网约车");
+      const line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], {
+        color: route.color,
+        weight: isRide ? 4 : 5,
+        opacity: .9,
+        dashArray: isRide ? "8 9" : null,
+        lineCap: "round"
+      }).addTo(map);
+      line.bindTooltip(`${route.day} · ${mode}`, { sticky: true, className: "route-map-label" });
+      routeLayers.push(line);
+    });
+  });
+}
+
+function fitShundeRoute() {
+  if (!map) return;
+  const routes = currentShundeRoute === "all" ? shundeRoutes : shundeRoutes.filter(route => route.id === currentShundeRoute);
+  const points = routes.flatMap(route => route.stops)
+    .map(id => places.find(place => place.id === id))
+    .filter(place => place && hasMapPoint(place))
+    .map(place => [place.lat, place.lng]);
+  if (points.length) map.fitBounds(points, { padding: [52, 52] });
 }
 
 function selectOnMap(place) {
@@ -459,7 +548,7 @@ function clearDistanceLayers() {
 function drawNearestDistances(place) {
   clearDistanceLayers();
   const nearest = places
-    .filter(item => item.id !== place.id && matchesPlace(item))
+    .filter(item => item.id !== place.id && matchesPlace(item) && hasMapPoint(item) && hasMapPoint(place))
     .map(item => ({ item, km: distanceKm(place, item) }))
     .sort((a, b) => a.km - b.km)
     .slice(0, 3);
@@ -474,16 +563,17 @@ function renderDetail(id) {
   if (map) { map.remove(); map = null; }
   const place = places.find(item => item.id === id);
   fitMapButton.hidden = true;
+  printButton.hidden = true;
   app.replaceChildren(detailTemplate.content.cloneNode(true));
   const page = document.querySelector("#detailPage");
   if (!place) {
     page.innerHTML = `<div class="error-page"><h1>没有找到这个地点</h1><a class="ghost-button" href="#/">返回地图</a></div>`;
     return;
   }
-  const distances = places
-    .filter(item => item.id !== place.id && item.city === place.city)
+  const distances = hasMapPoint(place) ? places
+    .filter(item => item.id !== place.id && item.city === place.city && hasMapPoint(item))
     .map(item => ({ item, km: distanceKm(place, item) }))
-    .sort((a, b) => a.km - b.km);
+    .sort((a, b) => a.km - b.km) : [];
   page.innerHTML = `
     <header class="detail-hero">
       ${place.image ? '<img src="' + place.image + '" alt="' + place.name + '实景" referrerpolicy="no-referrer" />' : ''}
@@ -536,5 +626,6 @@ fitMapButton.addEventListener("click", () => {
   if (!location.hash || location.hash === "#/") fitAll();
   else location.hash = "#/";
 });
+printButton.addEventListener("click", () => window.print());
 window.addEventListener("hashchange", route);
 window.addEventListener("DOMContentLoaded", route);

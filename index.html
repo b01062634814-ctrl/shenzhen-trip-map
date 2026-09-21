@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#071f2b" />
-    <meta name="description" content="广东旅行地图：浏览深圳、广州、顺德与汕头的景点、距离和美食。" />
+    <meta name="description" content="广东旅行地图：浏览深圳与顺德的景点、路线、距离和美食。" />
     <title>广东旅行地图</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://unpkg.com" />
@@ -23,7 +23,7 @@
           </span>
         </a>
         <div class="top-actions">
-          <span class="live-pill">4 个目的地</span>
+          <span class="live-pill">2 个目的地</span>
           <button class="ghost-button" id="printButton" type="button" hidden>打印顺德路线</button>
           <button class="ghost-button" id="fitMapButton" type="button">查看全城</button>
         </div>
@@ -40,7 +40,7 @@
             <h1>先看位置，<br />再决定今天去哪。</h1>
             <p>点地图或卡片查看玩法。选中地点后，会自动算出它与其他景点的直线距离。</p>
           </div>
-          <label class="city-picker">目的地 <select id="citySelect"><option>深圳</option><option>广州</option><option>顺德</option><option>汕头</option></select></label>
+          <label class="city-picker">目的地 <select id="citySelect"><option>深圳</option><option>顺德</option></select></label>
           <p id="cityIntro" class="city-intro"></p>
           <details class="food-guide" id="foodGuide"><summary>当地吃什么</summary><div id="foodList"></div></details>
           <section class="route-planner" id="routePlanner" hidden aria-label="顺德省力动线"></section>
@@ -79,7 +79,7 @@
     </template>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="destinations.js?v=20260920-shunde"></script>
+    <script src="destinations.js?v=20260921-two-cities"></script>
     <script src="shunde-guides.js?v=20260921-ronggui"></script>
     <script src="nanshan-guides.js"></script>
     <script src="photo-gallery.js?v=20260919-futian"></script>

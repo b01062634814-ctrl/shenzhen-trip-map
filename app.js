@@ -229,6 +229,7 @@ function matchesPlace(place) {
   if (place.city !== currentCity) return false;
   if (currentFilter === "全部") return true;
   if (currentFilter === "高频美食") return Number.isFinite(place.foodRank);
+  if (currentFilter === "容桂美食") return place.rongguiFood === true;
   return place.category === currentFilter;
 }
 function hasMapPoint(place) {
@@ -348,9 +349,9 @@ function renderRoutePlanner() {
   if (!panel || currentCity !== "顺德") return;
   panel.hidden = false;
   panel.innerHTML = `
-    <div class="route-heading"><div><p class="eyebrow">地图上的省力动线</p><h2>两天走法</h2></div><span>实线步行 · 虚线打车</span></div>
+    <div class="route-heading"><div><p class="eyebrow">地图上的省力动线</p><h2>两日路线 · D2 二选一</h2></div><span>实线步行 · 虚线打车</span></div>
     <div class="route-switcher">
-      <button class="route-choice ${currentShundeRoute === "all" ? "active" : ""}" data-route="all">两条都看</button>
+      <button class="route-choice ${currentShundeRoute === "all" ? "active" : ""}" data-route="all">全部路线</button>
       ${shundeRoutes.map(route => `<button class="route-choice ${currentShundeRoute === route.id ? "active" : ""}" data-route="${route.id}">${route.day}</button>`).join("")}
     </div>
     <div class="route-cards">
@@ -374,7 +375,7 @@ function renderRoutePlanner() {
       }).join("")}</div>
       <details><summary>统计口径与 24 篇来源</summary><p>${shundeFoodResearch.method}</p><ol>${shundeFoodResearch.sources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ol></details>
     </section>
-    <div class="route-alert"><b>两个关键假设</b><span>国泰南路目前按 1–6 号一带作区域锚点，收到酒店全名后可校正；D1 琼花戏楼是主餐，赋狮楼有胃口才去，不强行连吃。</span></div>
+    <div class="route-alert"><b>路线选择原则</b><span>国泰南路目前按 1–6 号一带作区域锚点，收到酒店全名后可校正；D2-A 大良线与 D2-B 容桂线二选一，不在一天内来回跨区。D1 琼花戏楼是主餐，赋狮楼有胃口才去。</span></div>
   `;
   panel.querySelector(".route-switcher").addEventListener("click", event => {
     const button = event.target.closest("[data-route]");
@@ -405,7 +406,7 @@ function renderCards() {
     <a class="place-card" href="#/place/${place.id}" data-place-id="${place.id}">
       ${place.image ? '<img src="' + place.image + '" alt="' + place.name + '实景" loading="lazy" referrerpolicy="no-referrer" />' : '<div class="place-text-cover">' + place.city + '<small>实景照片待补</small></div>'}
       <div class="card-body">
-        <div class="card-row"><h2>${place.name}</h2><span class="tag">${place.foodRank ? `高频 #${place.foodRank}` : place.category}</span></div>
+        <div class="card-row"><h2>${place.name}</h2><span class="tag">${place.foodRank ? `高频 #${place.foodRank}` : place.rongguiFood ? "容桂美食" : place.category}</span></div>
         <p>${place.summary}</p>
         <div class="card-meta"><span>${place.pendingLocation ? "位置待核" : place.area}</span><span>${place.foodMentions || place.duration}</span></div>
       </div>
@@ -446,7 +447,7 @@ function initMap() {
   places.filter(hasMapPoint).forEach(place => {
     const index = numberedPlaces.findIndex(item => item.id === place.id);
     const icon = L.divIcon({
-      className: place.foodRank ? "custom-pin food-pin" : "custom-pin",
+      className: place.foodRank ? "custom-pin food-pin" : place.rongguiFood ? "custom-pin ronggui-pin" : "custom-pin",
       html: `<div class="pin-wrap"><div class="pin-dot"><span>${index >= 0 ? String(index + 1).padStart(2, "0") : "·"}</span></div><div class="pin-label">${place.pinName || place.name}</div></div>`,
       iconSize: [84, 57],
       iconAnchor: [42, 35]

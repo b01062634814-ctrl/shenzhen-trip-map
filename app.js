@@ -356,11 +356,11 @@ function renderRoutePlanner() {
         <p>${route.summary}</p>
         <ol>${route.stops.map((id, index) => {
           const place = places.find(item => item.id === id);
-          return `<li><a href="#/place/${id}">${place?.name || id}</a>${index < route.segments.length ? `<small>${route.segments[index]}</small>` : ""}</li>`;
+          return `<li><a href="#/place/${id}">${place?.name || id}</a>${route.times?.[index] ? `<em>${route.times[index]}</em>` : ""}${index < route.segments.length ? `<small>${route.segments[index]}</small>` : ""}</li>`;
         }).join("")}</ol>
       </article>`).join("")}
     </div>
-    <div class="route-alert"><b>琼花戏楼演出提醒</b><span>已按华盖里四巷 14 号加入 D1；演出场次、订座和消费规则请在出发前确认。</span></div>
+    <div class="route-alert"><b>两个关键假设</b><span>国泰南路目前按 1–6 号一带作区域锚点，收到酒店全名后可校正；D1 琼花戏楼是主餐，赋狮楼有胃口才去，不强行连吃。</span></div>
   `;
   panel.querySelector(".route-switcher").addEventListener("click", event => {
     const button = event.target.closest("[data-route]");
@@ -606,7 +606,7 @@ function renderDetail(id) {
         ${destinationGuides[place.city].foods.length ? '<h2>' + place.city + '吃什么</h2><div class="detail-food">' + foodHtml(place.city) + '</div>' : ''}
         <h2>到场前记住这三件事</h2>
         <ol class="play-list">${place.tips.map((tip, index) => `<li><b>${index + 1}</b><span>${tip}</span></li>`).join("")}</ol>
-        ${place.researchSources ? `<section class="research-sources"><h2>小红书实测与评论复核</h2><p>不是照抄单篇笔记：已对照公开搜索卡片、正文摘要和可见评论中的正反反馈。链接可能需要登录小红书查看。</p><ul>${place.researchSources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ul></section>` : ''}
+        ${place.researchSources ? `<section class="research-sources"><h2>调研来源与交叉核对</h2><p>路线结论综合了累计 35 篇小红书游记/评论及官方、地图与游客资料；以下列出这个地点最直接的复核入口。</p><ul>${place.researchSources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ul></section>` : ''}
       </section>
       <aside class="distance-box">
         <h2>离其他地点多远</h2>

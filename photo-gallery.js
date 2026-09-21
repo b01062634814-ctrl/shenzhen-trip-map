@@ -275,13 +275,6 @@ const photoGalleries = {
       "author": "小k丶"
     },
     {
-      "src": "assets/photos/futian-mangrove-1.webp",
-      "caption": "福田红树林湿地木栈道与候鸟景观",
-      "source": "https://huacheng.gz-cmc.com/pages/2020/06/11/fe534cdcf8914df99b322da1e958feb4.html",
-      "author": "广州日报·新花城实景报道",
-      "sourceLabel": "来源报道"
-    },
-    {
       "src": "assets/photos/futian-mangrove-2.webp",
       "caption": "红树林生态公园步道实景",
       "source": "https://www.topchinatravel.com/china-attractions/shenzhen-mangrove-nature-reserve.htm",

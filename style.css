@@ -27,7 +27,7 @@
 .route-heading .eyebrow { margin-bottom:5px; }
 .route-heading h2 { margin:0; font-size:22px; }
 .route-heading > span { max-width:120px; color:#60756c; font-size:11px; line-height:1.5; text-align:right; }
-.route-switcher { display:flex; gap:7px; margin:15px 0 12px; }
+.route-switcher { display:flex; flex-wrap:wrap; gap:7px; margin:15px 0 12px; }
 .route-choice { border:1px solid #b8ccca; border-radius:999px; padding:7px 11px; background:white; cursor:pointer; font-size:12px; }
 .route-choice.active { color:white; border-color:var(--ink); background:var(--ink); }
 .route-cards { display:grid; gap:10px; }
@@ -171,6 +171,8 @@ a { color: inherit; }
 .custom-pin.active .pin-dot { width: 42px; height: 42px; background: var(--coral); }
 .food-pin .pin-dot { background:#a44f35; }
 .food-pin .pin-label { border:1px solid #e4b9ab; color:#713420; }
+.ronggui-pin .pin-dot { background:#5c4bb7; }
+.ronggui-pin .pin-label { border:1px solid #c8c0ef; color:#40317f; }
 .distance-label { color: var(--ink); background: rgba(255,255,255,.9); border: 0; border-radius: 999px; box-shadow: 0 4px 12px rgba(9,34,49,.12); font-size: 10px; font-weight: 700; padding: 3px 6px; }
 .route-map-label { color:var(--ink); border:0; border-radius:999px; box-shadow:0 4px 12px rgba(9,34,49,.15); font-size:11px; font-weight:700; }
 

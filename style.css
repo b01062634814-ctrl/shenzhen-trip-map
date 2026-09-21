@@ -44,6 +44,22 @@
 .route-alert { display:grid; gap:4px; margin-top:10px; padding:11px 12px; border-radius:12px; color:#694a19; background:#fff4d8; }
 .route-alert b { font-size:12px; }
 .route-alert span { font-size:11px; line-height:1.5; }
+.food-frequency { margin-top:12px; padding:13px; border-radius:14px; background:#fff; }
+.food-frequency-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
+.food-frequency-heading .eyebrow { margin-bottom:4px; }
+.food-frequency-heading h3 { margin:0; font-size:16px; }
+.food-frequency-heading > span { color:#718087; font-size:10px; }
+.food-frequency-list { display:grid; gap:6px; margin-top:11px; }
+.food-frequency-list > a, .food-frequency-list > div { display:grid; grid-template-columns:1fr auto; gap:3px 8px; padding:9px 10px; border:1px solid #d8e5e0; border-radius:10px; color:inherit; background:#f7faf8; text-decoration:none; }
+.food-frequency-list b, .food-frequency-list strong { font-size:11px; }
+.food-frequency-list strong { color:#a44f35; }
+.food-frequency-list small { grid-column:1 / -1; color:#66776f; font-size:10px; line-height:1.45; }
+.food-frequency details { margin-top:10px; font-size:11px; }
+.food-frequency summary { cursor:pointer; color:#216653; font-weight:700; }
+.food-frequency details p { margin:8px 0; font-size:10px; line-height:1.55; }
+.food-frequency details ol { max-height:190px; margin:0; padding-left:20px; overflow:auto; }
+.food-frequency details li { padding:3px 0; line-height:1.45; }
+.food-frequency details a { color:#31584d; }
 .place-text-cover { display:grid; align-content:center; text-align:center; background:#dcebe7; color:#075660; font-size:20px; font-weight:700; }
 .place-text-cover small { margin-top:8px; font-size:12px; font-weight:400; }
 .boundary-legend { padding: 12px 14px; background: rgba(255,255,255,.96); border-radius: 12px; box-shadow: 0 3px 16px #09223122; font-size: 14px; font-weight: 700; color: #092231; }
@@ -153,6 +169,8 @@ a { color: inherit; }
 .pin-dot span { transform: rotate(45deg); color: white; font-size: 12px; font-weight: 800; }
 .pin-label { margin-top: 5px; padding: 3px 7px; border-radius: 7px; color: var(--ink); background: rgba(255,255,255,.92); font-size: 11px; font-weight: 700; white-space: nowrap; }
 .custom-pin.active .pin-dot { width: 42px; height: 42px; background: var(--coral); }
+.food-pin .pin-dot { background:#a44f35; }
+.food-pin .pin-label { border:1px solid #e4b9ab; color:#713420; }
 .distance-label { color: var(--ink); background: rgba(255,255,255,.9); border: 0; border-radius: 999px; box-shadow: 0 4px 12px rgba(9,34,49,.12); font-size: 10px; font-weight: 700; padding: 3px 6px; }
 .route-map-label { color:var(--ink); border:0; border-radius:999px; box-shadow:0 4px 12px rgba(9,34,49,.15); font-size:11px; font-weight:700; }
 
@@ -255,6 +273,7 @@ a { color: inherit; }
   .explorer-panel { height:190mm; padding:0; overflow:hidden; border:0; background:white; }
   .route-planner { margin:0; height:100%; padding:6mm; border:1px solid #8daaa3; }
   .route-switcher { display:none; }
+  .food-frequency { display:none; }
   .map-stage { grid-row:auto; height:190mm; border:1px solid #8daaa3; }
   #map { height:100%; }
   .pin-label { font-size:9px; }

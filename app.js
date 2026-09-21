@@ -197,7 +197,7 @@ const places = [
     description: "深圳湾公园很长，不必追求一次走完。第一次去可以从地铁站附近开始，沿海走到觉得刚好的位置再折返。天气舒服时，带点喝的坐在草地上，比连续赶景点更能体会深圳的滨海节奏。",
     tips: ["日落前一小时到，光线和体感通常都更友好。", "共享单车的可骑行区域以现场规则为准。", "与海上世界、人才公园可按兴趣拆成不同傍晚。"],
     image: "https://www.asiaodysseytravel.com/images/china-tours/group-tours/shenzhen-bay-park-700-4.jpg",
-    source: "https://www.asiaodysseytravel.com/guangzhou-tours/shenzhen-day-trip.html"
+    source: "https://www.openstreetmap.org/search?query=%E6%B7%B1%E5%9C%B3%E6%B9%BE%E5%85%AC%E5%9B%AD"
   }
 ];
 
@@ -228,7 +228,8 @@ let currentCity = "深圳";
 function matchesPlace(place) {
   if (place.city !== currentCity) return false;
   if (currentFilter === "全部") return true;
-  if (currentFilter === "高频美食") return Number.isFinite(place.foodRank);
+  if (currentFilter === "美食TOP20") return Number.isFinite(place.foodTopRank);
+  if (currentFilter === "游玩TOP20") return Number.isFinite(place.playTopRank);
   if (currentFilter === "容桂美食") return place.rongguiFood === true;
   return place.category === currentFilter;
 }
@@ -364,16 +365,29 @@ function renderRoutePlanner() {
         }).join("")}</ol>
       </article>`).join("")}
     </div>
-    <section class="food-frequency" aria-label="顺德高频美食统计">
-      <div class="food-frequency-heading"><div><p class="eyebrow">本轮 24 篇提及频次</p><h3>高频美食落点</h3></div><span>不是口味评分</span></div>
-      <div class="food-frequency-list">${shundeFoodResearch.ranking.map(item => {
-        const place = item.placeId ? places.find(place => place.id === item.placeId) : null;
-        const title = `<b>#${item.rank} ${item.food}</b><strong>${item.mentions}/${shundeFoodResearch.sampleSize}</strong>`;
-        return place
-          ? `<a href="#/place/${place.id}">${title}<small>${item.note}</small></a>`
-          : `<div>${title}<small>${item.note}</small></div>`;
-      }).join("")}</div>
-      <details><summary>统计口径与 24 篇来源</summary><p>${shundeFoodResearch.method}</p><ol>${shundeFoodResearch.sources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ol></details>
+    <section class="food-frequency" aria-label="顺德前二十美食和游玩榜">
+      <div class="food-frequency-heading"><div><p class="eyebrow">57 篇内容及评论 + 10 条复核</p><h3>顺德 TOP 20 × 2</h3></div><span>综合推荐，不是星级榜</span></div>
+      <details class="ranking-group" open>
+        <summary>前 20 个美食落点</summary>
+        <div class="food-frequency-list">${shundeFoodResearch.ranking.map(item => {
+          const place = places.find(place => place.id === item.placeId);
+          const title = `<b>#${item.rank} ${escapeHtml(item.food)}</b><strong>${escapeHtml(item.signal)}</strong>`;
+          return place
+            ? `<a href="#/place/${place.id}">${title}<small>${escapeHtml(item.note)}</small></a>`
+            : `<div>${title}<small>${escapeHtml(item.note)}</small></div>`;
+        }).join("")}</div>
+      </details>
+      <details class="ranking-group">
+        <summary>前 20 个值得玩的地方</summary>
+        <div class="food-frequency-list play-ranking-list">${shundeFoodResearch.playRanking.map(item => {
+          const place = places.find(place => place.id === item.placeId);
+          const title = `<b>#${item.rank} ${escapeHtml(place?.name || item.placeId)}</b><strong>值得玩</strong>`;
+          return place
+            ? `<a href="#/place/${place.id}">${title}<small>${escapeHtml(item.note)}</small></a>`
+            : `<div>${title}<small>${escapeHtml(item.note)}</small></div>`;
+        }).join("")}</div>
+      </details>
+      <details class="ranking-group source-group"><summary>筛选口径与全部 ${shundeFoodResearch.sampleSize} 条来源</summary><p>${shundeFoodResearch.method}</p><ol>${shundeFoodResearch.sources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ol></details>
     </section>
     <div class="route-alert"><b>路线选择原则</b><span>国泰南路目前按 1–6 号一带作区域锚点，收到酒店全名后可校正；D2-A 大良线与 D2-B 容桂线二选一，不在一天内来回跨区。D1 琼花戏楼是主餐，赋狮楼有胃口才去。</span></div>
   `;
@@ -406,9 +420,9 @@ function renderCards() {
     <a class="place-card" href="#/place/${place.id}" data-place-id="${place.id}">
       ${place.image ? '<img src="' + place.image + '" alt="' + place.name + '实景" loading="lazy" referrerpolicy="no-referrer" />' : '<div class="place-text-cover">' + place.city + '<small>实景照片待补</small></div>'}
       <div class="card-body">
-        <div class="card-row"><h2>${place.name}</h2><span class="tag">${place.foodRank ? `高频 #${place.foodRank}` : place.rongguiFood ? "容桂美食" : place.category}</span></div>
+        <div class="card-row"><h2>${place.name}</h2><span class="tag">${place.foodTopRank ? `美食 TOP${place.foodTopRank}` : place.playTopRank ? `游玩 TOP${place.playTopRank}` : place.rongguiFood ? "容桂美食" : place.category}</span></div>
         <p>${place.summary}</p>
-        <div class="card-meta"><span>${place.pendingLocation ? "位置待核" : place.area}</span><span>${place.foodMentions || place.duration}</span></div>
+        <div class="card-meta"><span>${place.pendingLocation ? "地址片区参考" : place.area}</span><span>${place.foodSignal || place.duration}</span></div>
       </div>
     </a>
   `).join("");
@@ -447,7 +461,7 @@ function initMap() {
   places.filter(hasMapPoint).forEach(place => {
     const index = numberedPlaces.findIndex(item => item.id === place.id);
     const icon = L.divIcon({
-      className: place.foodRank ? "custom-pin food-pin" : place.rongguiFood ? "custom-pin ronggui-pin" : "custom-pin",
+      className: place.foodTopRank ? "custom-pin food-pin" : place.playTopRank ? "custom-pin play-pin" : place.rongguiFood ? "custom-pin ronggui-pin" : "custom-pin",
       html: `<div class="pin-wrap"><div class="pin-dot"><span>${index >= 0 ? String(index + 1).padStart(2, "0") : "·"}</span></div><div class="pin-label">${place.pinName || place.name}</div></div>`,
       iconSize: [84, 57],
       iconAnchor: [42, 35]
@@ -621,7 +635,7 @@ function renderDetail(id) {
         ${destinationGuides[place.city].foods.length ? '<h2>' + place.city + '吃什么</h2><div class="detail-food">' + foodHtml(place.city) + '</div>' : ''}
         <h2>到场前记住这三件事</h2>
         <ol class="play-list">${place.tips.map((tip, index) => `<li><b>${index + 1}</b><span>${tip}</span></li>`).join("")}</ol>
-        ${place.researchSources ? `<section class="research-sources"><h2>调研来源与交叉核对</h2><p>路线结论综合了累计 35 篇小红书游记/评论及官方、地图与游客资料；以下列出这个地点最直接的复核入口。</p><ul>${place.researchSources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ul></section>` : ''}
+        ${place.researchSources ? `<section class="research-sources"><h2>调研来源与交叉核对</h2><p>${place.city === "顺德" ? "顺德榜单累计使用 57 篇游记、探店正文及可见评论，并以 10 条官方、地图与评价资料复核；" : "路线结论综合了累计 35 篇游记、评论及官方、地图与游客资料；"}以下列出这个地点最直接的复核入口。</p><ul>${place.researchSources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ul></section>` : ''}
       </section>
       <aside class="distance-box">
         <h2>离其他地点多远</h2>

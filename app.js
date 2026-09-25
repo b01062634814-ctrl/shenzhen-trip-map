@@ -224,7 +224,7 @@ let distanceLayers = [];
 let routeLayers = [];
 let currentShundeRoute = "old-town";
 let currentPage = "map";
-let currentArea = "全区";
+let mapSearch = "";
 let mapFocusId = null;
 let currentFilter = "全部";
 let currentCity = "顺德";
@@ -232,7 +232,7 @@ function matchesPlace(place) {
   if (place.city !== currentCity) return false;
   if (currentCity === "顺德") {
     if (currentPage === "routes") return shundeRoutes.find(route => route.id === currentShundeRoute)?.stops.includes(place.id);
-    if (currentArea !== "全区" && !place.area.startsWith(currentArea)) return false;
+    if (mapSearch && ![place.name, place.area, place.food || ""].join(" ").toLowerCase().includes(mapSearch.toLowerCase())) return false;
   }
   if (currentFilter === "全部") return true;
   if (currentFilter === "美食TOP20") return Number.isFinite(place.foodTopRank);
@@ -351,22 +351,24 @@ function renderMap() {
   fitMapButton.textContent = currentCity === "顺德" ? "查看全区" : "查看全城";
   printButton.hidden = currentPage !== "routes";
   currentFilter = "全部";
+  mapSearch = "";
   const selector = document.querySelector("#citySelect");
   selector.value = currentCity;
   selector.addEventListener("change", () => {
     location.hash = selector.value === "顺德" ? "#/shunde" : "#/shenzhen";
   });
   const shunde = currentCity === "顺德";
+  selector.closest("label").hidden = shunde;
   document.querySelector(".map-page").classList.toggle("shunde-map", shunde);
   document.querySelector(".map-page").classList.toggle("route-map", currentPage === "routes");
   document.querySelector("#cityIntro").textContent = shunde
-    ? (currentPage === "routes" ? "D1 走大良老城；D2 在大良与容桂中选一条。点击站点查看单独介绍。" : "只看顺德区。点数字展开相邻地点，或按片区筛选。")
+    ? (currentPage === "routes" ? "D1 走大良老城；D2 在大良与容桂中选一条。点击站点查看单独介绍。" : "点击下方地点，在地图上直接定位。")
     : destinationGuides[currentCity].intro;
   document.querySelector(".panel-intro").innerHTML = shunde
     ? '<p class="eyebrow">SHUNDE · 顺德</p><h1>' + (currentPage === "routes" ? "两日路线" : "顺德地图") + '</h1>'
     : '<p class="eyebrow">SHENZHEN · 深圳</p><h1>深圳地图</h1>';
   document.querySelector("#mapNoteText").textContent = shunde
-    ? (currentPage === "routes" ? "实线步行 · 虚线打车 · 连线为建议顺序" : "橙色美食 · 蓝色游玩 · 数字圆圈可展开")
+    ? (currentPage === "routes" ? "实线步行 · 虚线打车 · 连线为建议顺序" : "橙色美食 · 蓝色游玩 · 点击名称查看")
     : "地图距离为直线估算";
   document.querySelectorAll("[data-filter]").forEach(button => {
     button.hidden = shunde
@@ -379,7 +381,7 @@ function renderMap() {
     document.querySelector("#placeList").hidden = true;
     renderShundeRoutePanel();
   } else if (shunde) {
-    renderAreaControls();
+    renderMapSearch();
   }
   renderCards();
   bindFilters();
@@ -403,6 +405,18 @@ function renderCards() {
   const list = document.querySelector("#placeList");
   if (!list) return;
   const shown = places.filter(matchesPlace).sort((a, b) => currentCity === "顺德" ? (currentFilter === "美食" ? (a.foodTopRank || 99) - (b.foodTopRank || 99) : (a.playTopRank || 99) - (b.playTopRank || 99)) : 0);
+  if (currentCity === "顺德") {
+    list.innerHTML = shown.map(place => `<article class="map-place-row ${place.id === selectedShundeId ? "active" : ""}" data-place-id="${place.id}"><button class="locate-place" data-locate="${place.id}" aria-label="在地图上查看${escapeHtml(place.name)}"><span class="row-dot ${place.category === "美食" ? "food" : ""}"></span><span><strong>${escapeHtml(place.name)}</strong><small>${escapeHtml(place.category)} · ${escapeHtml(place.area)}</small></span></button><a class="row-detail" href="#/place/${place.id}">详情</a></article>`).join("") || '<p class="empty-state">没有匹配地点，试试其他名称或分类。</p>';
+    const count = document.querySelector("#mapResultCount");
+    if (count) count.textContent = `${shown.length} 个地点`;
+    list.querySelectorAll("[data-locate]").forEach(button => button.addEventListener("click", () => {
+      const place = places.find(item => item.id === button.dataset.locate);
+      selectOnMap(place);
+      markers.get(place.id)?.openPopup();
+      if (window.matchMedia("(max-width: 840px)").matches) document.querySelector(".map-stage").scrollIntoView({behavior: "smooth", block: "start"});
+    }));
+    return;
+  }
   list.innerHTML = shown.map(place => `
     <a class="place-card" href="#/place/${place.id}" data-place-id="${place.id}">
       ${place.image ? '<img src="' + place.image + '" alt="' + place.name + '实景" loading="lazy" referrerpolicy="no-referrer" />' : '<div class="place-text-cover">' + place.city + '<small>实景照片待补</small></div>'}
@@ -435,11 +449,11 @@ function initMap() {
   }
   if (map) { map.off(); map.setMaxBounds(null); map.stop(); map.remove(); map = null; }
   markers = new Map();
-  shundeClusterLayers = [];
+  shundeLabelLines = [];
   distanceLayers = [];
   routeLayers = [];
   cityBounds = null;
-  map = L.map("map", { zoomControl: false, minZoom: 8, maxBoundsViscosity: 1 }).setView(currentCity === "顺德" ? [22.83, 113.24] : [22.552, 114.06], currentCity === "顺德" ? 12 : 10);
+  map = L.map("map", { zoomControl: false, zoomSnap: .25, minZoom: 8, maxBoundsViscosity: 1 }).setView(currentCity === "顺德" ? [22.83, 113.24] : [22.552, 114.06], currentCity === "顺德" ? 12 : 10);
   L.control.zoom({ position: "topright" }).addTo(map);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 18,
@@ -451,9 +465,9 @@ function initMap() {
     const index = numberedPlaces.findIndex(item => item.id === place.id);
     const icon = L.divIcon({
       className: place.foodTopRank ? "custom-pin food-pin" : place.playTopRank ? "custom-pin play-pin" : place.rongguiFood ? "custom-pin ronggui-pin" : "custom-pin",
-      html: `<div class="pin-wrap"><div class="pin-dot"><span>${currentPage === "routes" ? shundeRoutes.find(route => route.id === currentShundeRoute)?.stops.indexOf(place.id) + 1 : String(index + 1).padStart(2, "0")}</span></div><div class="pin-label">${escapeHtml(place.name)}</div></div>`,
-      iconSize: [84, 57],
-      iconAnchor: [42, 35]
+      html: `<div class="pin-wrap"><div class="pin-dot"><span>${currentPage === "routes" ? shundeRoutes.find(route => route.id === currentShundeRoute)?.stops.indexOf(place.id) + 1 : (currentCity === "顺德" ? "" : String(index + 1).padStart(2, "0"))}</span></div><div class="pin-label">${escapeHtml(currentCity === "顺德" ? shortPlaceName(place.name) : place.name)}</div></div>`,
+      iconSize: currentCity === "顺德" ? [14, 14] : [84, 57],
+      iconAnchor: currentCity === "顺德" ? [7, 7] : [42, 35]
     });
     const marker = L.marker([place.lat, place.lng], { icon, title: place.name }).addTo(map);
     marker.on("click", () => selectOnMap(place));
@@ -481,7 +495,7 @@ function initMap() {
 
 function fitAll() {
   if (!map) return;
-  if ((currentCity === "深圳" || (currentPage === "map" && currentArea === "全区")) && currentFilter === "全部" && cityBounds) {
+  if ((currentCity === "深圳" || (currentPage === "map" && !mapSearch)) && currentFilter === "全部" && cityBounds) {
     map.fitBounds(cityBounds, {padding: [35, 45], animate: false});
     return;
   }
@@ -555,12 +569,16 @@ function fitShundeRoute() {
 function selectOnMap(place) {
   clearMarkerFocus();
   focusMarker(place.id);
-  document.querySelectorAll(".place-card").forEach(card => card.classList.toggle("active", card.dataset.placeId === place.id));
+  document.querySelectorAll("[data-place-id]").forEach(card => card.classList.toggle("active", card.dataset.placeId === place.id));
   const card = document.querySelector(`[data-place-id="${place.id}"]`);
-  card?.scrollIntoView({ behavior: "smooth", block: "center" });
+  if (card && window.innerWidth > 840) {
+    const panel = document.querySelector(".explorer-panel");
+    panel.scrollTo({top: card.offsetTop - panel.clientHeight / 2, behavior: "smooth"});
+  }
   if (currentCity !== "顺德") drawNearestDistances(place);
   else selectedShundeId = place.id;
-  map.flyTo([place.lat, place.lng], Math.max(map.getZoom(), currentCity === "顺德" ? 16 : 11), { duration: .65 });
+  map.setView([place.lat, place.lng], Math.max(map.getZoom(), currentCity === "顺德" ? 17 : 11), { animate: false });
+  if (currentCity === "顺德") refreshShundeMarkers();
 }
 
 function focusMarker(id) {
@@ -657,7 +675,7 @@ function renderDetail(id) {
 
 fitMapButton.addEventListener("click", () => {
   if (currentCity === "顺德" && currentPage === "map") {
-    currentArea = "全区";
+    mapSearch = "";
     currentFilter = "全部";
     renderMap();
   } else if (map) fitAll();

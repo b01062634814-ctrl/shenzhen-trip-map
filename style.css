@@ -363,6 +363,37 @@ a { color: inherit; }
   .map-note > b, .map-note > span:last-child { display:none; }
 }
 
+/* One continuous Shunde map, with named points and direct list-to-map lookup. */
+.shunde-map { grid-template-columns:280px minmax(0,1fr); }
+.shunde-map .explorer-panel { padding:18px 12px; }
+.shunde-map .panel-intro h1 { font-size:26px; }
+.shunde-map .city-intro { line-height:1.7; }
+.map-search { display:grid; gap:7px; margin:14px 4px 0; font-size:12px; }
+.map-search input { width:100%; padding:11px; border:1px solid #b8ccca; border-radius:9px; font:inherit; background:white; }
+#mapResultCount { font-size:12px; color:var(--ink-soft); margin:10px 4px 0; }
+.map-place-row { display:flex; align-items:center; border:1px solid var(--line); border-radius:10px; background:white; }
+.map-place-row.active { background:#e5f3ef; border-color:#25847b; }
+.locate-place { display:flex; align-items:flex-start; gap:9px; flex:1; min-width:0; padding:13px 9px; border:0; background:none; text-align:left; font:inherit; cursor:pointer; color:var(--ink); }
+.locate-place strong { display:block; font-size:13px; line-height:1.55; }
+.locate-place small { display:block; margin-top:5px; font-size:10px; line-height:1.5; color:var(--ink-soft); }
+.row-dot { flex-shrink:0; width:8px; height:8px; border-radius:50%; background:#28708a; margin-top:6px; }
+.row-dot.food { background:#a44f35; }
+.row-detail { padding:13px 9px; font-size:11px; white-space:nowrap; color:#32615e; }
+.shunde-map .pin-wrap { display:block; position:relative; filter:none; }
+.shunde-map .pin-dot, .shunde-map .custom-pin.active .pin-dot { width:14px; height:14px; border-radius:50%; border:2px solid white; transform:none; box-shadow:0 1px 5px #123d3b66; }
+.shunde-map .custom-pin.active .pin-dot { outline:4px solid #f4b47488; }
+.shunde-map .pin-label { position:absolute; margin:0; padding:4px 7px; max-width:196px; font-size:12px; line-height:16px; border-radius:5px; box-shadow:0 1px 5px #123d3b22; background:#ffffffed; }
+.shunde-map .pin-dot span { transform:none; }
+.route-map.shunde-map .pin-dot { width:23px; height:23px; margin:-4px; }
+.shunde-map .filters { top:-18px; }
+@media (max-width:840px) {
+  .shunde-map { grid-template-columns:1fr; grid-template-rows:62svh auto; }
+  .shunde-map .map-stage { height:62svh; scroll-margin-top:106px; }
+  .shunde-map .filters { position:static; }
+  .shunde-map .explorer-panel { height:auto; }
+  .shunde-map .pin-label { font-size:11px; }
+}
+
 @media print {
   @page { size: A4 landscape; margin: 8mm; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }

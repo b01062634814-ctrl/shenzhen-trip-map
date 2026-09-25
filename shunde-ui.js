@@ -1,7 +1,7 @@
 // Shunde views share place data, while each page owns one job.
-let shundeClusterLayers = [];
+let shundeLabelLines = [];
 let selectedShundeId = null;
-const shundeAreas = ["全区", "大良", "容桂", "北滘", "伦教", "杏坛", "均安"];
+
 
 function renderPageNav() {
   const nav = document.querySelector("#pageNav");
@@ -10,14 +10,19 @@ function renderPageNav() {
   document.title = currentPage === "detail" ? `${places.find(place => location.hash.endsWith('/' + place.id))?.name || "地点详情"} · 旅行地图` : `${currentCity === "顺德" ? links.find(link => link[2] === currentPage)?.[1] : "深圳地图"} · 旅行地图`;
 }
 
-function renderAreaControls() {
-  const host = document.querySelector("#areaControls");
-  host.innerHTML = `<label class="area-picker">片区 <select id="areaSelect">${shundeAreas.map(area => `<option ${currentArea === area ? "selected" : ""}>${area}</option>`).join("")}</select></label>`;
-  host.querySelector("select").addEventListener("change", event => {
-    currentArea = event.target.value;
+function renderMapSearch() {
+  const host = document.querySelector("#mapControls");
+  host.innerHTML = '<label class="map-search">查找地点<input type="search" id="mapSearch" placeholder="搜索景点、店名或菜品" /></label><p id="mapResultCount" aria-live="polite"></p>';
+  host.querySelector("input").value = mapSearch;
+  host.querySelector("input").addEventListener("input", event => {
+    mapSearch = event.target.value.trim();
     renderCards();
     updateMarkerVisibility();
   });
+}
+
+function shortPlaceName(name) {
+  return name.replace(/[（(].*?[）)]/g, "").split("·")[0].split(" / ")[0].trim();
 }
 
 function renderShundeRoutePanel() {
@@ -41,24 +46,22 @@ function renderFoodDirectory() {
   printButton.hidden = true;
   const foodPlaces = places.filter(place => place.city === "顺德" && place.category === "美食")
     .sort((a, b) => (a.foodTopRank || 99) - (b.foodTopRank || 99));
-  app.innerHTML = `<section class="food-page"><header class="food-page-intro"><p class="eyebrow">SHUNDE · FOOD GUIDE</p><h1>顺德，吃什么？</h1><p>全部 ${foodPlaces.length} 个美食地点集中在这里。先选片区和想吃的，再到地图看位置。</p></header>
-    <div class="food-tools"><label>搜索门店或菜品<input id="foodSearch" type="search" placeholder="例如：排骨饭、桑拿鸡、早茶" /></label><label>片区<select id="foodArea"><option value="">所有片区</option>${[...new Set(foodPlaces.map(place => shundeAreas.find(area => area !== "全区" && place.area.startsWith(area)) || place.area))].map(area => `<option>${escapeHtml(area)}</option>`).join("")}</select></label><span id="foodCount" aria-live="polite"></span></div>
+  app.innerHTML = `<section class="food-page"><header class="food-page-intro"><p class="eyebrow">SHUNDE · FOOD GUIDE</p><h1>顺德，吃什么？</h1><p>全部 ${foodPlaces.length} 个美食地点集中在这里。搜索想吃的菜或门店，再到地图看位置。</p></header>
+    <div class="food-tools"><label>搜索门店或菜品<input id="foodSearch" type="search" placeholder="例如：排骨饭、桑拿鸡、早茶" /></label><span id="foodCount" aria-live="polite"></span></div>
     <div id="foodDirectory" class="food-directory"></div>
     <details class="directory-notes"><summary>点餐与行程提醒</summary><p>两个人先问最小份、茶位和等位。粥底火锅、桑拿鸡、煲仔饭可互相替换，不必按榜单连续吃。淡水鱼生不进主路线；需要时选择彻底熟制菜式。介意预制菜时逐道询问制作和备料。</p></details>
     <details class="directory-notes"><summary>榜单依据与来源</summary><p>${escapeHtml(shundeFoodResearch.method)}</p><p>以下保留原有调研资料；本次更新调整页面结构，不新增评论样本。</p><ol>${shundeFoodResearch.sources.map(([name, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(name)}</a></li>`).join("")}</ol></details>
   </section>`;
   const draw = () => {
     const query = document.querySelector("#foodSearch").value.trim().toLowerCase();
-    const area = document.querySelector("#foodArea").value;
-    const results = foodPlaces.filter(place => (!area || place.area.startsWith(area)) && [place.name, place.food, place.summary, place.area].join(" ").toLowerCase().includes(query));
+    const results = foodPlaces.filter(place => [place.name, place.food, place.summary, place.area].join(" ").toLowerCase().includes(query));
     document.querySelector("#foodCount").textContent = `${results.length} 个地点`;
     document.querySelector("#foodDirectory").innerHTML = results.map(place => {
       const review = shundeFoodResearch.ranking.find(item => item.placeId === place.id);
       return `<article class="food-entry"><div class="food-entry-head"><span class="food-number">${place.foodTopRank ? String(place.foodTopRank).padStart(2, "0") : "·"}</span><div><p>${escapeHtml(place.area)}${place.pendingLocation ? " · 地址片区参考" : ""}</p><h2><a href="#/place/${place.id}">${escapeHtml(place.name)}</a></h2></div></div><p class="food-dishes">${escapeHtml(place.food || place.features || place.summary)}</p>${review ? `<p class="food-verdict">${escapeHtml(review.note)}</p>` : ""}<div class="food-entry-links"><a href="#/place/${place.id}">门店详情 →</a><a href="#/shunde/map/${place.id}">地图定位 ↗</a></div></article>`;
-    }).join("") || '<p class="empty-state">没有找到匹配门店，试试其他菜名或片区。</p>';
+    }).join("") || '<p class="empty-state">没有找到匹配门店，试试其他菜名或店名。</p>';
   };
   document.querySelector("#foodSearch").addEventListener("input", draw);
-  document.querySelector("#foodArea").addEventListener("change", draw);
   draw();
 }
 
@@ -88,7 +91,7 @@ async function drawShundeBoundary(targetMap) {
     const legend = L.control({position: "topleft"});
     legend.onAdd = () => {
       const element = L.DomUtil.create("div", "boundary-legend");
-      element.innerHTML = '<span></span>顺德区<small>区外已隐藏 · 点圆圈放大</small>';
+      element.innerHTML = '<span></span>顺德区<small>区外底图已隐藏</small>';
       return element;
     };
     legend.addTo(targetMap);
@@ -108,9 +111,9 @@ function focusShundePoint() {
   const place = places.find(place => place.id === mapFocusId && place.city === "顺德");
   mapFocusId = null;
   if (!place || !map) return;
-  currentArea = "全区";
+  mapSearch = "";
   currentFilter = "全部";
-  renderAreaControls();
+  renderMapSearch();
   renderCards();
   selectedShundeId = place.id;
   map.setView([place.lat, place.lng], 17);
@@ -120,49 +123,51 @@ function focusShundePoint() {
 
 function refreshShundeMarkers() {
   if (!map || currentCity !== "顺德") return;
-  shundeClusterLayers.forEach(layer => map.removeLayer(layer));
-  shundeClusterLayers = [];
+  shundeLabelLines.forEach(layer => map.removeLayer(layer));
+  shundeLabelLines = [];
   const visible = places.filter(place => matchesPlace(place) && hasMapPoint(place));
-  const groups = [];
-  // Group by screen distance instead of shifting the real coordinates.
-  visible.forEach(place => {
-    const point = map.project([place.lat, place.lng], map.getZoom());
-    const group = map.getZoom() < 17 && place.id !== selectedShundeId
-      ? groups.find(group => !group.selected && group.point.distanceTo(point) < (map.getZoom() < 14 ? 65 : 42)) : null;
-    if (group) group.places.push(place);
-    else groups.push({point, places: [place], selected: place.id === selectedShundeId});
+  const ids = new Set(visible.map(place => place.id));
+  markers.forEach((marker, id) => {
+    if (ids.has(id) && !map.hasLayer(marker)) marker.addTo(map);
+    if (!ids.has(id) && map.hasLayer(marker)) map.removeLayer(marker);
   });
-  const singles = new Set(groups.filter(group => group.places.length === 1).map(group => group.places[0].id));
-  markers.forEach((marker, id) => { if (!singles.has(id) && map.hasLayer(marker)) map.removeLayer(marker); });
-  groups.forEach(group => {
-    if (group.places.length === 1) {
-      const place = group.places[0];
-      const marker = markers.get(place.id);
-      if (!map.hasLayer(marker)) marker.addTo(map);
-      marker.getElement()?.classList.toggle("active", selectedShundeId === place.id);
-      return;
-    }
-    const bounds = L.latLngBounds(group.places.map(place => [place.lat, place.lng]));
-    const label = `${group.places.length} 个相邻地点，点击展开`;
-    const cluster = L.marker(bounds.getCenter(), {title: label, icon: L.divIcon({className: "place-cluster", html: `<span>${group.places.length}</span>`, iconSize: [44, 44], iconAnchor: [22, 22]})}).addTo(map);
-    cluster.bindTooltip(label);
-    cluster.on("click", () => map.fitBounds(bounds, {padding: [65, 65], maxZoom: 18}));
-    shundeClusterLayers.push(cluster);
-  });
-  // Keep names hidden in overview; at street scale only show non-overlapping labels.
-  const occupied = [];
-  visible.forEach(place => {
-    const element = markers.get(place.id)?.getElement();
-    if (!element || !map.hasLayer(markers.get(place.id))) return;
+  const size = map.getSize();
+  // Keep each real location visible; spread name labels with leader lines.
+  const occupied = [{left: 0, right: 160, top: 0, bottom: 65}, {left: size.x - 55, right: size.x, top: 0, bottom: 100}];
+  const points = visible.map(place => ({place, point: map.latLngToContainerPoint([place.lat, place.lng])}));
+  points.sort((a, b) => Number(b.place.id === selectedShundeId) - Number(a.place.id === selectedShundeId) || (a.place.playTopRank || a.place.foodTopRank || 99) - (b.place.playTopRank || b.place.foodTopRank || 99));
+  points.forEach(({place, point}) => {
+    const marker = markers.get(place.id);
+    const element = marker.getElement();
+    if (!element) return;
+    element.classList.toggle("active", place.id === selectedShundeId);
     const label = element.querySelector(".pin-label");
     label.classList.remove("show-name");
-    if (map.getZoom() < 15) return;
-    const point = map.latLngToContainerPoint([place.lat, place.lng]);
-    const width = Math.min(220, place.name.length * 11 + 16);
-    const rect = {left: point.x - width / 2, right: point.x + width / 2, top: point.y + 15, bottom: point.y + 40};
-    if (!occupied.some(other => rect.left < other.right && rect.right > other.left && rect.top < other.bottom && rect.bottom > other.top)) {
-      label.classList.add("show-name");
-      occupied.push(rect);
+    label.style.left = "18px";
+    label.style.top = "-6px";
+    if (point.x < 0 || point.y < 0 || point.x > size.x || point.y > size.y) return;
+    const width = Math.min(196, shortPlaceName(place.name).length * 12 + 18);
+    const candidates = [[16, -12], [-width - 16, -12], [-width / 2, 18], [-width / 2, -38]];
+    for (let distance = 45; distance <= 250; distance += 28) {
+      for (const side of [1, -1]) {
+        candidates.push([side === 1 ? 18 : -width - 18, distance], [side === 1 ? 18 : -width - 18, -distance - 24]);
+        candidates.push([side === 1 ? distance : -width - distance, -12]);
+      }
+    }
+    const candidate = candidates.find(([x,y]) => {
+      const rect = {left:point.x+x, right:point.x+x+width, top:point.y+y, bottom:point.y+y+26};
+      return rect.left > 6 && rect.right < size.x - 6 && rect.top > 6 && rect.bottom < size.y - 48 && !occupied.some(other => rect.left < other.right+4 && rect.right > other.left-4 && rect.top < other.bottom+3 && rect.bottom > other.top-3);
+    });
+    if (!candidate) return;
+    const [x,y] = candidate;
+    occupied.push({left:point.x+x, right:point.x+x+width, top:point.y+y, bottom:point.y+y+26});
+    label.style.left = `${x + 7}px`;
+    label.style.top = `${y + 7}px`;
+    label.classList.add("show-name");
+    if (Math.abs(y) > 20 || Math.abs(x) > width + 20 || x > 25) {
+      const end = map.containerPointToLatLng([point.x + x + (x < 0 ? width : 0), point.y + y + 13]);
+      const line = L.polyline([[place.lat,place.lng], end], {color:place.category === "美食" ? "#a44f35" : "#28708a", weight:1, opacity:.55, interactive:false}).addTo(map);
+      shundeLabelLines.push(line);
     }
   });
 }

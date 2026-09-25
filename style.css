@@ -339,7 +339,7 @@ a { color: inherit; }
   .topbar { height:106px; flex-wrap:wrap; padding:10px 14px; align-content:space-between; }
   .top-actions { display:contents; }
   .page-nav { order:3; width:100%; justify-content:center; }
-  .page-nav a { padding:8px 16px; }
+  .page-nav a { padding:8px 10px; font-size:12px; }
   .topbar .ghost-button { margin-left:auto; }
   .map-page, .detail-page { padding-top:106px; }
   .shunde-map { grid-template-columns:1fr; grid-template-rows:56vh auto; }

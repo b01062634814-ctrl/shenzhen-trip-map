@@ -6,7 +6,7 @@ let selectedShundeId = null;
 function renderPageNav() {
   const nav = document.querySelector("#pageNav");
   const links = [["#/shunde", "顺德地图", "map"], ["#/shunde/routes", "两日路线", "routes"], ["#/shunde/foods", "全部美食", "foods"]];
-  nav.innerHTML = links.map(([href, label, page]) => `<a href="${href}" ${currentCity === "顺德" && currentPage === page ? 'aria-current="page"' : ""}>${label}</a>`).join("");
+  nav.innerHTML = `<a href="#/shenzhen" ${currentCity === "深圳" ? 'aria-current="page"' : ""}>深圳地图</a>` + links.map(([href, label, page]) => `<a href="${href}" ${currentCity === "顺德" && currentPage === page ? 'aria-current="page"' : ""}>${label}</a>`).join("");
   document.title = currentPage === "detail" ? `${places.find(place => location.hash.endsWith('/' + place.id))?.name || "地点详情"} · 旅行地图` : `${currentCity === "顺德" ? links.find(link => link[2] === currentPage)?.[1] : "深圳地图"} · 旅行地图`;
 }
 

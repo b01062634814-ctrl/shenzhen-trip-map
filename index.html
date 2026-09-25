@@ -10,22 +10,22 @@
     <link rel="preconnect" href="https://unpkg.com" />
     <link rel="preconnect" href="https://tile.openstreetmap.org" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    <link rel="stylesheet" href="style.css?v=20260921-top20" />
+    <link rel="stylesheet" href="style.css?v=20260925-layout" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <a class="brand" href="#/" aria-label="返回地图首页">
-          <span class="brand-mark" aria-hidden="true">深</span>
+          <span class="brand-mark" aria-hidden="true">游</span>
           <span>
             <strong>广东旅行地图</strong>
             <small>两个人 · 十月出发</small>
           </span>
         </a>
         <div class="top-actions">
-          <span class="live-pill">2 个目的地</span>
+          <nav id="pageNav" class="page-nav" aria-label="旅行页面"></nav>
           <button class="ghost-button" id="printButton" type="button" hidden>打印顺德路线</button>
-          <button class="ghost-button" id="fitMapButton" type="button">查看全城</button>
+          <button class="ghost-button" id="fitMapButton" type="button">查看全区</button>
         </div>
       </header>
 
@@ -42,7 +42,7 @@
           </div>
           <label class="city-picker">目的地 <select id="citySelect"><option>深圳</option><option>顺德</option></select></label>
           <p id="cityIntro" class="city-intro"></p>
-          <details class="food-guide" id="foodGuide"><summary>当地吃什么</summary><div id="foodList"></div></details>
+          <div id="areaControls"></div>
           <section class="route-planner" id="routePlanner" hidden aria-label="顺德省力动线"></section>
           <div class="filters" id="filters" aria-label="景点分类">
             <button class="filter active" data-filter="全部">全部</button>
@@ -84,6 +84,7 @@
     <script src="shunde-guides.js?v=20260921-top20"></script>
     <script src="nanshan-guides.js"></script>
     <script src="photo-gallery.js?v=20260919-futian"></script>
-    <script src="app.js?v=20260921-top20"></script>
+    <script src="app.js?v=20260925-layout"></script>
+    <script src="shunde-ui.js?v=20260925-layout"></script>
   </body>
 </html>

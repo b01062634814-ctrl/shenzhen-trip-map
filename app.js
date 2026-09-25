@@ -222,11 +222,18 @@ let map = null;
 let markers = new Map();
 let distanceLayers = [];
 let routeLayers = [];
-let currentShundeRoute = "all";
+let currentShundeRoute = "old-town";
+let currentPage = "map";
+let currentArea = "全区";
+let mapFocusId = null;
 let currentFilter = "全部";
-let currentCity = "深圳";
+let currentCity = "顺德";
 function matchesPlace(place) {
   if (place.city !== currentCity) return false;
+  if (currentCity === "顺德") {
+    if (currentPage === "routes") return shundeRoutes.find(route => route.id === currentShundeRoute)?.stops.includes(place.id);
+    if (currentArea !== "全区" && !place.area.startsWith(currentArea)) return false;
+  }
   if (currentFilter === "全部") return true;
   if (currentFilter === "美食TOP20") return Number.isFinite(place.foodTopRank);
   if (currentFilter === "游玩TOP20") return Number.isFinite(place.playTopRank);
@@ -235,9 +242,6 @@ function matchesPlace(place) {
 }
 function hasMapPoint(place) {
   return Number.isFinite(place.lat) && Number.isFinite(place.lng);
-}
-function foodHtml(city) {
-  return destinationGuides[city].foods.map(([name, text]) => '<p><strong>' + name + '</strong><br>' + text + '</p>').join("");
 }
 let cityBounds = null;
 
@@ -320,84 +324,67 @@ function formatDistance(km) {
 }
 
 function route() {
-  const match = location.hash.match(/^#\/place\/([a-z0-9-]+)$/);
-  if (match) renderDetail(match[1]);
-  else renderMap();
+  const hash = location.hash;
+  const match = hash.match(new RegExp("^#/place/([a-z0-9-]+)$"));
+  if (match) {
+    currentPage = "detail";
+    renderDetail(match[1]);
+  } else if (hash === "#/shunde/foods") {
+    currentCity = "顺德";
+    currentPage = "foods";
+    renderFoodDirectory();
+  } else {
+    if (hash.startsWith("#/shunde")) currentCity = "顺德";
+    else if (hash === "#/shenzhen") currentCity = "深圳";
+    currentPage = hash === "#/shunde/routes" ? "routes" : "map";
+    mapFocusId = hash.match(new RegExp("^#/shunde/map/([a-z0-9-]+)$"))?.[1] || null;
+    renderMap();
+  }
+  renderPageNav();
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 function renderMap() {
-  if (map) { map.remove(); map = null; }
+  if (map) { map.off(); map.setMaxBounds(null); map.stop(); map.remove(); map = null; }
   app.replaceChildren(mapTemplate.content.cloneNode(true));
   fitMapButton.hidden = false;
-  printButton.hidden = currentCity !== "顺德";
+  fitMapButton.textContent = currentCity === "顺德" ? "查看全区" : "查看全城";
+  printButton.hidden = currentPage !== "routes";
   currentFilter = "全部";
   const selector = document.querySelector("#citySelect");
   selector.value = currentCity;
-  selector.addEventListener("change", () => { currentCity = selector.value; renderMap(); });
-  document.querySelector("#cityIntro").textContent = destinationGuides[currentCity].intro;
-  document.querySelector("#foodList").innerHTML = foodHtml(currentCity);
-  document.querySelector("#foodGuide").hidden = !destinationGuides[currentCity].foods.length;
-  document.querySelector("#mapNoteText").textContent = currentCity === "顺德" ? "彩线为建议顺序，不是逐路口导航" : "地图距离为直线估算";
-  renderRoutePlanner();
+  selector.addEventListener("change", () => {
+    location.hash = selector.value === "顺德" ? "#/shunde" : "#/shenzhen";
+  });
+  const shunde = currentCity === "顺德";
+  document.querySelector(".map-page").classList.toggle("shunde-map", shunde);
+  document.querySelector(".map-page").classList.toggle("route-map", currentPage === "routes");
+  document.querySelector("#cityIntro").textContent = shunde
+    ? (currentPage === "routes" ? "D1 走大良老城；D2 在大良与容桂中选一条。点击站点查看单独介绍。" : "只看顺德区。点数字展开相邻地点，或按片区筛选。")
+    : destinationGuides[currentCity].intro;
+  document.querySelector(".panel-intro").innerHTML = shunde
+    ? '<p class="eyebrow">SHUNDE · 顺德</p><h1>' + (currentPage === "routes" ? "两日路线" : "顺德地图") + '</h1>'
+    : '<p class="eyebrow">SHENZHEN · 深圳</p><h1>深圳地图</h1>';
+  document.querySelector("#mapNoteText").textContent = shunde
+    ? (currentPage === "routes" ? "实线步行 · 虚线打车 · 连线为建议顺序" : "橙色美食 · 蓝色游玩 · 数字圆圈可展开")
+    : "地图距离为直线估算";
+  document.querySelectorAll("[data-filter]").forEach(button => {
+    button.hidden = shunde
+      ? !["全部", "美食", "游玩TOP20", "交通", "住宿"].includes(button.dataset.filter)
+      : ["美食TOP20", "游玩TOP20", "容桂美食"].includes(button.dataset.filter);
+    if (shunde && button.dataset.filter === "游玩TOP20") button.textContent = "游玩";
+  });
+  if (shunde && currentPage === "routes") {
+    document.querySelector("#filters").hidden = true;
+    document.querySelector("#placeList").hidden = true;
+    renderShundeRoutePanel();
+  } else if (shunde) {
+    renderAreaControls();
+  }
   renderCards();
   bindFilters();
-  requestAnimationFrame(initMap);
-}
-
-function renderRoutePlanner() {
-  const panel = document.querySelector("#routePlanner");
-  if (!panel || currentCity !== "顺德") return;
-  panel.hidden = false;
-  panel.innerHTML = `
-    <div class="route-heading"><div><p class="eyebrow">地图上的省力动线</p><h2>两日路线 · D2 二选一</h2></div><span>实线步行 · 虚线打车</span></div>
-    <div class="route-switcher">
-      <button class="route-choice ${currentShundeRoute === "all" ? "active" : ""}" data-route="all">全部路线</button>
-      ${shundeRoutes.map(route => `<button class="route-choice ${currentShundeRoute === route.id ? "active" : ""}" data-route="${route.id}">${route.day}</button>`).join("")}
-    </div>
-    <div class="route-cards">
-      ${shundeRoutes.map(route => `<article class="mini-route" style="--route-color:${route.color}">
-        <div class="mini-route-title"><b>${route.day}</b><strong>${route.name}</strong></div>
-        <p>${route.summary}</p>
-        <ol>${route.stops.map((id, index) => {
-          const place = places.find(item => item.id === id);
-          return `<li><a href="#/place/${id}">${place?.name || id}</a>${route.times?.[index] ? `<em>${route.times[index]}</em>` : ""}${index < route.segments.length ? `<small>${route.segments[index]}</small>` : ""}</li>`;
-        }).join("")}</ol>
-      </article>`).join("")}
-    </div>
-    <section class="food-frequency" aria-label="顺德前二十美食和游玩榜">
-      <div class="food-frequency-heading"><div><p class="eyebrow">57 篇内容及评论 + 10 条复核</p><h3>顺德 TOP 20 × 2</h3></div><span>综合推荐，不是星级榜</span></div>
-      <details class="ranking-group" open>
-        <summary>前 20 个美食落点</summary>
-        <div class="food-frequency-list">${shundeFoodResearch.ranking.map(item => {
-          const place = places.find(place => place.id === item.placeId);
-          const title = `<b>#${item.rank} ${escapeHtml(item.food)}</b><strong>${escapeHtml(item.signal)}</strong>`;
-          return place
-            ? `<a href="#/place/${place.id}">${title}<small>${escapeHtml(item.note)}</small></a>`
-            : `<div>${title}<small>${escapeHtml(item.note)}</small></div>`;
-        }).join("")}</div>
-      </details>
-      <details class="ranking-group">
-        <summary>前 20 个值得玩的地方</summary>
-        <div class="food-frequency-list play-ranking-list">${shundeFoodResearch.playRanking.map(item => {
-          const place = places.find(place => place.id === item.placeId);
-          const title = `<b>#${item.rank} ${escapeHtml(place?.name || item.placeId)}</b><strong>值得玩</strong>`;
-          return place
-            ? `<a href="#/place/${place.id}">${title}<small>${escapeHtml(item.note)}</small></a>`
-            : `<div>${title}<small>${escapeHtml(item.note)}</small></div>`;
-        }).join("")}</div>
-      </details>
-      <details class="ranking-group source-group"><summary>筛选口径与全部 ${shundeFoodResearch.sampleSize} 条来源</summary><p>${shundeFoodResearch.method}</p><ol>${shundeFoodResearch.sources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ol></details>
-    </section>
-    <div class="route-alert"><b>路线选择原则</b><span>国泰南路目前按 1–6 号一带作区域锚点，收到酒店全名后可校正；D2-A 大良线与 D2-B 容桂线二选一，不在一天内来回跨区。D1 琼花戏楼是主餐，赋狮楼有胃口才去。</span></div>
-  `;
-  panel.querySelector(".route-switcher").addEventListener("click", event => {
-    const button = event.target.closest("[data-route]");
-    if (!button) return;
-    currentShundeRoute = button.dataset.route;
-    panel.querySelectorAll(".route-choice").forEach(item => item.classList.toggle("active", item === button));
-    drawShundeRoutes();
-    fitShundeRoute();
+  requestAnimationFrame(() => {
+    if (document.querySelector("#map")) initMap();
   });
 }
 
@@ -415,7 +402,7 @@ function bindFilters() {
 function renderCards() {
   const list = document.querySelector("#placeList");
   if (!list) return;
-  const shown = places.filter(matchesPlace);
+  const shown = places.filter(matchesPlace).sort((a, b) => currentCity === "顺德" ? (currentFilter === "美食" ? (a.foodTopRank || 99) - (b.foodTopRank || 99) : (a.playTopRank || 99) - (b.playTopRank || 99)) : 0);
   list.innerHTML = shown.map(place => `
     <a class="place-card" href="#/place/${place.id}" data-place-id="${place.id}">
       ${place.image ? '<img src="' + place.image + '" alt="' + place.name + '实景" loading="lazy" referrerpolicy="no-referrer" />' : '<div class="place-text-cover">' + place.city + '<small>实景照片待补</small></div>'}
@@ -426,6 +413,7 @@ function renderCards() {
       </div>
     </a>
   `).join("");
+  if (!shown.length) list.innerHTML = '<p class="empty-state">这个片区没有匹配地点，请换一个分类。</p>';
 
   list.querySelectorAll("img").forEach(img => {
     img.addEventListener("error", () => {
@@ -445,12 +433,13 @@ function initMap() {
     fallback.hidden = false;
     return;
   }
-  if (map) { map.remove(); map = null; }
+  if (map) { map.off(); map.setMaxBounds(null); map.stop(); map.remove(); map = null; }
   markers = new Map();
+  shundeClusterLayers = [];
   distanceLayers = [];
   routeLayers = [];
   cityBounds = null;
-  map = L.map("map", { zoomControl: false, minZoom: 8 }).setView([22.552, 114.06], 10);
+  map = L.map("map", { zoomControl: false, minZoom: 8, maxBoundsViscosity: 1 }).setView(currentCity === "顺德" ? [22.83, 113.24] : [22.552, 114.06], currentCity === "顺德" ? 12 : 10);
   L.control.zoom({ position: "topright" }).addTo(map);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 18,
@@ -458,16 +447,18 @@ function initMap() {
   }).addTo(map).on("tileerror", () => { fallback.hidden = false; });
 
   const numberedPlaces = places.filter(place => place.city === currentCity && hasMapPoint(place));
-  places.filter(hasMapPoint).forEach(place => {
+  numberedPlaces.forEach(place => {
     const index = numberedPlaces.findIndex(item => item.id === place.id);
     const icon = L.divIcon({
       className: place.foodTopRank ? "custom-pin food-pin" : place.playTopRank ? "custom-pin play-pin" : place.rongguiFood ? "custom-pin ronggui-pin" : "custom-pin",
-      html: `<div class="pin-wrap"><div class="pin-dot"><span>${index >= 0 ? String(index + 1).padStart(2, "0") : "·"}</span></div><div class="pin-label">${place.pinName || place.name}</div></div>`,
+      html: `<div class="pin-wrap"><div class="pin-dot"><span>${currentPage === "routes" ? shundeRoutes.find(route => route.id === currentShundeRoute)?.stops.indexOf(place.id) + 1 : String(index + 1).padStart(2, "0")}</span></div><div class="pin-label">${escapeHtml(place.name)}</div></div>`,
       iconSize: [84, 57],
       iconAnchor: [42, 35]
     });
     const marker = L.marker([place.lat, place.lng], { icon, title: place.name }).addTo(map);
     marker.on("click", () => selectOnMap(place));
+    marker.bindPopup(`<b>${escapeHtml(place.name)}</b><p>${escapeHtml(place.pendingLocation ? "地址片区参考，请核对店门位置" : place.area)}</p><a href="#/place/${place.id}">查看详情 →</a>`);
+    marker.on("popupclose", clearMarkerFocus);
     markers.set(place.id, marker);
   });
   updateMarkerVisibility();
@@ -481,21 +472,32 @@ function initMap() {
     drawCityBoundary(map);
     drawDistrictBoundaries(map);
   }
-  if (currentCity === "顺德") drawShundeRoutes();
+  if (currentCity === "顺德") {
+    map.on("zoomend moveend", refreshShundeMarkers);
+    drawShundeBoundary(map);
+    drawShundeRoutes();
+  }
 }
 
 function fitAll() {
   if (!map) return;
-  if (currentCity === "深圳" && currentFilter === "全部" && cityBounds) {
-    map.fitBounds(cityBounds, {padding: [35, 45]});
+  if ((currentCity === "深圳" || (currentPage === "map" && currentArea === "全区")) && currentFilter === "全部" && cityBounds) {
+    map.fitBounds(cityBounds, {padding: [35, 45], animate: false});
     return;
   }
   const visible = places.filter(place => matchesPlace(place) && hasMapPoint(place));
-  if (visible.length) map.fitBounds(visible.map(place => [place.lat, place.lng]), { padding: [42, 42] });
+  if (visible.length) map.fitBounds(visible.map(place => [place.lat, place.lng]), { padding: [42, 42], maxZoom: 16, animate: false });
 }
 
 function updateMarkerVisibility() {
   if (!map) return;
+  if (currentCity === "顺德") {
+    clearDistanceLayers();
+    drawShundeRoutes();
+    refreshShundeMarkers();
+    fitAll();
+    return;
+  }
   places.forEach(place => {
     const marker = markers.get(place.id);
     if (!marker) return;
@@ -516,7 +518,7 @@ function clearRouteLayers() {
 
 function drawShundeRoutes() {
   clearRouteLayers();
-  if (!map || currentCity !== "顺德" || currentFilter !== "全部") return;
+  if (!map || currentCity !== "顺德" || currentPage !== "routes") return;
   const shownRoutes = currentShundeRoute === "all"
     ? shundeRoutes
     : shundeRoutes.filter(route => route.id === currentShundeRoute);
@@ -547,7 +549,7 @@ function fitShundeRoute() {
     .map(id => places.find(place => place.id === id))
     .filter(place => place && hasMapPoint(place))
     .map(place => [place.lat, place.lng]);
-  if (points.length) map.fitBounds(points, { padding: [52, 52] });
+  if (points.length) map.fitBounds(points, { padding: [52, 52], animate: false });
 }
 
 function selectOnMap(place) {
@@ -556,8 +558,9 @@ function selectOnMap(place) {
   document.querySelectorAll(".place-card").forEach(card => card.classList.toggle("active", card.dataset.placeId === place.id));
   const card = document.querySelector(`[data-place-id="${place.id}"]`);
   card?.scrollIntoView({ behavior: "smooth", block: "center" });
-  drawNearestDistances(place);
-  map.flyTo([place.lat, place.lng], Math.max(map.getZoom(), 11), { duration: .65 });
+  if (currentCity !== "顺德") drawNearestDistances(place);
+  else selectedShundeId = place.id;
+  map.flyTo([place.lat, place.lng], Math.max(map.getZoom(), currentCity === "顺德" ? 16 : 11), { duration: .65 });
 }
 
 function focusMarker(id) {
@@ -565,6 +568,7 @@ function focusMarker(id) {
 }
 
 function clearMarkerFocus() {
+  selectedShundeId = null;
   markers.forEach(marker => marker.getElement()?.classList.remove("active"));
 }
 
@@ -589,7 +593,7 @@ function drawNearestDistances(place) {
 }
 
 function renderDetail(id) {
-  if (map) { map.remove(); map = null; }
+  if (map) { map.off(); map.setMaxBounds(null); map.stop(); map.remove(); map = null; }
   const place = places.find(item => item.id === id);
   fitMapButton.hidden = true;
   printButton.hidden = true;
@@ -602,12 +606,13 @@ function renderDetail(id) {
   const distances = hasMapPoint(place) ? places
     .filter(item => item.id !== place.id && item.city === place.city && hasMapPoint(item))
     .map(item => ({ item, km: distanceKm(place, item) }))
-    .sort((a, b) => a.km - b.km) : [];
+    .sort((a, b) => a.km - b.km).slice(0, 6) : [];
   page.innerHTML = `
     <header class="detail-hero">
       ${place.image ? '<img src="' + place.image + '" alt="' + place.name + '实景" referrerpolicy="no-referrer" />' : ''}
       <div class="hero-content">
-        <a class="back-link" href="#/">← 返回全城地图</a>
+        <a class="back-link" href="${place.city === "顺德" ? "#/shunde" : "#/shenzhen"}">← 返回地图</a>
+        ${place.city === "顺德" ? `<a class="back-link" href="#/shunde/map/${place.id}">在地图上定位</a>${place.category === "美食" ? '<a class="back-link" href="#/shunde/foods">全部美食</a>' : ""}` : ""}
         <p class="eyebrow">${place.area} · ${place.category}</p>
         <h1>${place.name}</h1>
         <p>${place.summary}</p>
@@ -628,17 +633,16 @@ function renderDetail(id) {
           <p class="route-note">这是便于照着走的一条路线，不保证实时最快。步行时间为估算；出口开放、末班车与当天换乘请以导航和车站指引为准。线路核对：2026-09-16。<a href="${metroReference}" target="_blank" rel="noreferrer">官方线路参考 ↗</a></p>
         </section>` : ''}
         ${place.features ? `<h2>这个地方有什么特点</h2><p>${place.features}</p><h2>可玩性 · 适合怎样逛</h2><p>${place.playability}</p>` : ''}
-        <h2>怎么玩</h2>
+        <h2>${place.category === "美食" ? "怎么安排这顿饭" : "怎么玩"}</h2>
         ${place.itinerary ? `<ol class="itinerary-list">${place.itinerary.map(step=>`<li>${step}</li>`).join('')}</ol>` : `<p>${place.description}</p>`}
         ${place.photos ? `<section class="photo-section" aria-label="景点实景照片"><h2>实景照片</h2><p class="photo-note">来自游客或摄影作者公开发布的实拍，保留原图内容。点击可放大；照片中的展览、装置与天气不代表出行当天。</p><div class="photo-grid">${place.photos.map(photo=>`<figure><a href="${escapeHtml(photo.src)}" target="_blank" rel="noreferrer" aria-label="放大：${escapeHtml(photo.caption)}"><img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.caption)}" loading="lazy" /></a><figcaption>${escapeHtml(photo.caption)}<br><a href="${escapeHtml(photo.source)}" target="_blank" rel="noreferrer">${escapeHtml(photo.sourceLabel || (photo.source.includes('xiaohongshu.com') ? '小红书' : '来源'))} · ${escapeHtml(photo.author)} ↗</a></figcaption></figure>`).join('')}</div></section>` : ''}
-        ${place.food ? '<h2>附近怎么吃</h2><p>' + place.food + '</p>' : ''}
-        ${destinationGuides[place.city].foods.length ? '<h2>' + place.city + '吃什么</h2><div class="detail-food">' + foodHtml(place.city) + '</div>' : ''}
+        ${place.food ? '<h2>' + (place.category === '美食' ? '这家吃什么' : '附近怎么吃') + '</h2><p>' + place.food + '</p>' : ''}
         <h2>到场前记住这三件事</h2>
         <ol class="play-list">${place.tips.map((tip, index) => `<li><b>${index + 1}</b><span>${tip}</span></li>`).join("")}</ol>
         ${place.researchSources ? `<section class="research-sources"><h2>调研来源与交叉核对</h2><p>${place.city === "顺德" ? "顺德榜单累计使用 57 篇游记、探店正文及可见评论，并以 10 条官方、地图与评价资料复核；" : "路线结论综合了累计 35 篇游记、评论及官方、地图与游客资料；"}以下列出这个地点最直接的复核入口。</p><ul>${place.researchSources.map(([title, url]) => `<li><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(title)} ↗</a></li>`).join("")}</ul></section>` : ''}
       </section>
       <aside class="distance-box">
-        <h2>离其他地点多远</h2>
+        <h2>附近 6 个地点</h2>
         <p>直线距离，只用于快速判断区域关系</p>
         <div class="distance-list">
           ${distances.map(({ item, km }) => `<a class="distance-link" href="#/place/${item.id}"><span>${item.name}</span><span>${formatDistance(km)}</span></a>`).join("")}
@@ -652,8 +656,12 @@ function renderDetail(id) {
 }
 
 fitMapButton.addEventListener("click", () => {
-  if (!location.hash || location.hash === "#/") fitAll();
-  else location.hash = "#/";
+  if (currentCity === "顺德" && currentPage === "map") {
+    currentArea = "全区";
+    currentFilter = "全部";
+    renderMap();
+  } else if (map) fitAll();
+  else location.hash = currentCity === "顺德" ? "#/shunde" : "#/shenzhen";
 });
 printButton.addEventListener("click", () => window.print());
 window.addEventListener("hashchange", route);
